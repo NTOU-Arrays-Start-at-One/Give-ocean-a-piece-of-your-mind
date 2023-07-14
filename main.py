@@ -11,16 +11,18 @@ import CC_IQA
 import subprocess
 
 
-class StartPage(QWidget):
+class StartPage(QWidget, QtCore.QObject):
+    image_uploaded = QtCore.pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
 
         # 設置物件
         # 主圖片
         self.image_e = QLabel(self)
-        #self.imgShow1 原圖片
+        # self.imgShow1 原圖片
         self.imgShow1 = cv2.imread('res/original.jpg')
-        #self.imgShow2 被還原的圖片
+        # self.imgShow2 被還原的圖片
         self.image_e.setPixmap(QPixmap('res/original.jpg'))
 
         # 指令與切換按鈕a, b, c, d
@@ -98,9 +100,9 @@ class StartPage(QWidget):
 
     def use_waterNet(self):
         # Is first time?
-        # Lazy Load 
+        # Lazy Load
         # call_inference()
-        # def call_inference(source_path, weights_path): # inference.py (WaterNet) 
+        # def call_inference(source_path, weights_path): # inference.py (WaterNet)
         #     # 設定參數
         #     inference_path = os.path.expanduser("waternet/inference.py")
         #     output_path = os.path.expanduser("")
@@ -118,40 +120,46 @@ class StartPage(QWidget):
 
     def use_colorization(self):
         # Is first time?
-        # Lazy Load 
+        # Lazy Load
         # call
 
         self.imgShow2 = cv2.imread('res/colorization.jpg')
         self.image_show()
 
+    '''bugggggggggg
+    有上傳新圖片後會與之前上傳的還原圖片做對比的問題
+    '''
     def open_image(self):
         try:
             current_path = os.path.abspath(__file__)
-            parent_path = os.path.dirname(os.path.dirname(os.path.dirname(current_path)))
+            parent_path = os.path.dirname(
+                os.path.dirname(os.path.dirname(current_path)))
             dir_path = os.path.join(parent_path, 'input')
-            openfile_name = QFileDialog.getOpenFileName(self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
+            openfile_name = QFileDialog.getOpenFileName(
+                self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
         except:
             return
         if openfile_name[0] != '':
             self.img_path = openfile_name[0]
-            self.imgShow1 = cv2.imread(self.img_path)
+            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (1024, 576))
             self.image_e.setPixmap(QPixmap(self.img_path))
 
     def open_Analyze(self):
-        self.analyze_page = Analyze()
+        self.analyze_page = Analyze(self)
+        self.image_uploaded.emit(self.img_path)
         self.analyze_page.show()
-
         # 重構介面，讓它不需要上傳圖片，從imageShow2直接讀取
 
     def image_show(self):
 
-        self.imgShow2 = cv2.resize(self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
+        self.imgShow2 = cv2.resize(
+            self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
 
         # 生成一條紅色的線
         height, width, channels = self.imgShow1.shape
         line_thickness = 2
         line_length = int(width / 2)
-        line_color = (0, 0, 255) # BGR格式，此處為紅色
+        line_color = (0, 0, 255)  # BGR格式，此處為紅色
         line_x = int(width / 2)
         line_start = (line_x, 0)
         line_end = (line_x, height)
@@ -163,12 +171,13 @@ class StartPage(QWidget):
         merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
         merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
 
-        # 设置鼠标跟踪事件
+        # 設置滑鼠追蹤事件
         self.image_e.setMouseTracking(True)
-        self.image_e.mouseMoveEvent = self.on_mouse_move  # 设置鼠标移动事件的回调函数
+        self.image_e.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
 
-        # 将圖片與線合併
-        cv2.line(merged_image, line_start, line_end, line_color, line_thickness)
+        # 將圖片與線合併
+        cv2.line(merged_image, line_start, line_end,
+                 line_color, line_thickness)
 
         # 將圖片色彩空間從BGR轉換成RGB
         merged_image = cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB)
@@ -176,77 +185,95 @@ class StartPage(QWidget):
         # 將圖片轉換成QImage格式
         height, width, channels = merged_image.shape
         bytesPerLine = channels * width
-        qImg = QImage(merged_image.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(merged_image.data, width, height,
+                      bytesPerLine, QImage.Format_RGB888)
 
         # 將QImage格式的圖片顯示出來
         self.image_e.setPixmap(QPixmap.fromImage(qImg))
 
     def on_mouse_move(self, event):
-        # 获取鼠标位置
+        # 取得滑鼠位置
         mouse_pos = event.pos()
         line_x = mouse_pos.x()
 
-        # 更新线的位置
+        # 更新線的位置
         line_start = (line_x, 0)
         line_end = (line_x, self.image_e.pixmap().height())  # 使用image_e的高度
 
         # 更新 merged_image
-        self.imgShow2 = cv2.resize(self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
+        self.imgShow2 = cv2.resize(
+            self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
 
         merged_image = np.zeros_like(self.imgShow1)
         merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
         merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
 
-        # 绘制红线
+        # 繪製紅色線條
         line_thickness = 2
-        line_color = (0, 0, 255)  # BGR格式，此处为红色
-        cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+        line_color = (0, 0, 255)  # BGR格式，此為红色
+        cv2.line(merged_image, line_start, line_end,
+                line_color, thickness=line_thickness)
 
-        # 将图像色彩空间从BGR转换成RGB
+        # 將色彩空間從BGR轉換成RGB
         merged_image_rgb = cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB)
 
-        # 将图像转换成QImage格式
+        # 將影像轉換成QImage格式
         height, width, channels = merged_image_rgb.shape
-        qImg = QImage(merged_image_rgb.data, width, height, width * channels, QImage.Format_RGB888)
+        qImg = QImage(merged_image_rgb.data, width, height,
+                      width * channels, QImage.Format_RGB888)
 
-        # 将QImage格式的图像显示在image_e标签上
+        # 將QImage格式的影像顯示在image_e標籤上
         self.image_e.setPixmap(QPixmap.fromImage(qImg))
 
 
-
-
-class Analyze(QMainWindow, Ui_MainWindow):
+class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
     returnPoints = QtCore.pyqtSignal(list)
 
-    def __init__(self, parent=None):
-        super(Analyze, self).__init__(parent)
+    def __init__(self, start_page):
+        super(Analyze, self).__init__(start_page)
         self.setupUi(self)
-        self.PB_open.clicked.connect(self.open_image)
         self.PB_4points.clicked.connect(self.get_cc_points)
         self.PB_reset.clicked.connect(self.reset)
         self.PB_rot.clicked.connect(self.rot_rect)
         self.PB_cal.clicked.connect(self.cal_diff)
         self.PB_ok.clicked.connect(self.get_scale)
         self.PB_ok_2.clicked.connect(self.return_points)
-        self.img_path = ""
+        self.start_page = start_page
+        self.start_page.image_uploaded.connect(self.handle_image_uploaded)
+        self.img_path = ''
         self.cc_points = []
         self.get_p = False
         self.scale = 0.5
 
-    def open_image(self):
-        try:
-            current_path = os.path.abspath(__file__)
-            parent_path = os.path.dirname(os.path.dirname(os.path.dirname(current_path)))
-            dir_path = os.path.join(parent_path, 'input')
-            openfile_name = QFileDialog.getOpenFileName(self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
-        except:
-            return
-        if openfile_name[0] != '':
-            self.cc_image.reselect()
-            self.img_path = openfile_name[0]
-            self.ori_cc_img = cv2.imread(self.img_path)
-            self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
-            self.cc_image.show_image(self.resize_cc_img)
+    @QtCore.pyqtSlot(str)
+    def handle_image_uploaded(self, image_path):
+        self.cc_image.reselect()
+        self.img_path = image_path
+        self.ori_cc_img = cv2.imread(self.img_path)
+        self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
+        # 將 OpenCV 的圖片轉換為 QImage
+        height, width, channel = self.resize_cc_img.shape
+        bytes_per_line = 3 * width
+        qimage = QImage(self.resize_cc_img.data, width, height, bytes_per_line, QImage.Format_BGR888)
+        # 將 QImage 轉換為 QPixmap
+        qpixmap = QPixmap.fromImage(qimage)
+        # 在介面上顯示圖片
+        self.cc_image.setPixmap(qpixmap)
+
+    # def open_image(self):
+    #     try:
+    #         current_path = os.path.abspath(__file__)
+    #         parent_path = os.path.dirname(os.path.dirname(os.path.dirname(current_path)))
+    #         dir_path = os.path.join(parent_path, 'input')
+    #         openfile_name = QFileDialog.getOpenFileName(self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
+    #     except:
+    #         return
+    #     if openfile_name[0] != '':
+    #         self.cc_image.reselect()
+    #         self.img_path = openfile_name[0]
+    #         self.ori_cc_img = cv2.imread(self.img_path)
+    #         self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
+    #         self.cc_image.show_image(self.resize_cc_img)
 
     def get_cc_points(self):
         self.get_p = True

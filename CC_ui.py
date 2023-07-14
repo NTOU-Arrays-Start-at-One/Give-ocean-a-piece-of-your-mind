@@ -122,11 +122,8 @@ class Ui_MainWindow(object):
         self.label_2.setGeometry(QtCore.QRect(700, 20, 500, 36))
         self.label_2.setObjectName("label_2")
         bias_0 = 120
-        self.PB_open = QtWidgets.QPushButton(self.centralwidget)
-        self.PB_open.setGeometry(QtCore.QRect(bias_0 + 80, 540, 60, 23))
-        self.PB_open.setObjectName("PB_open")
         self.PB_4points = QtWidgets.QPushButton(self.centralwidget)
-        self.PB_4points.setGeometry(QtCore.QRect(bias_0 + 170, 540, 60, 23))
+        self.PB_4points.setGeometry(QtCore.QRect(bias_0 + 110, 540, 60, 23))
         self.PB_4points.setObjectName("PB_4points")
         self.PB_reset = QtWidgets.QPushButton(self.centralwidget)
         self.PB_reset.setGeometry(QtCore.QRect(bias_0 + 260, 540, 65, 23))
@@ -201,7 +198,6 @@ class Ui_MainWindow(object):
         self.label_2.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_2.setText(_translate("MainWindow", "step2: Crop the color chart area (rotate the image if "
                                                     "necessary to \nmatch the standard color chart)."))
-        self.PB_open.setText(_translate("MainWindow", "open"))
         self.PB_4points.setText(_translate("MainWindow", "confirm"))
         self.PB_reset.setText(_translate("MainWindow", "reset"))
         self.scale_text.setText(_translate("MainWindow", "0.5"))
