@@ -250,11 +250,12 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         self.cc_image.reselect()
         self.img_path = image_path
         self.ori_cc_img = cv2.imread(self.img_path)
+        self.ori_cc_img = cv2.cvtColor(self.ori_cc_img, cv2.COLOR_BGR2RGB)
         self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
         # 將 OpenCV 的圖片轉換為 QImage
         height, width, channel = self.resize_cc_img.shape
         bytes_per_line = 3 * width
-        qimage = QImage(self.resize_cc_img.data, width, height, bytes_per_line, QImage.Format_BGR888)
+        qimage = QImage(self.resize_cc_img.data, width, height, bytes_per_line, QImage.Format_RGB888)
         # 將 QImage 轉換為 QPixmap
         qpixmap = QPixmap.fromImage(qimage)
         # 在介面上顯示圖片
@@ -284,7 +285,7 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
                                     QMessageBox.Close)
             return
         rect = four_point_transform(self.ori_cc_img.copy(), np.array(self.cc_points))
-        self.rect_img = cv2.cvtColor(rect.copy(), cv2.COLOR_BGR2RGB)
+        self.rect_img = rect.copy()
         self.rect_img = cv2.resize(self.rect_img, (self.area_image.width(), self.area_image.height()))
         self.show_image(self.area_image, self.rect_img, rgb=False)
 
