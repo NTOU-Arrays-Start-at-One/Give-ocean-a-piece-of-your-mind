@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget
 from CC_ui import Ui_MainWindow
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QMovie
 import PyQt5.QtCore as QtCore
 import cv2
 import numpy as np
@@ -9,7 +9,6 @@ import os
 from imutils.perspective import four_point_transform
 import CC_IQA
 import subprocess
-
 
 class StartPage(QWidget, QtCore.QObject):
     image_uploaded = QtCore.pyqtSignal(str)
@@ -21,9 +20,13 @@ class StartPage(QWidget, QtCore.QObject):
         # 主圖片
         self.image_e = QLabel(self)
         # self.imgShow1 原圖片
-        self.imgShow1 = cv2.imread('res/original.jpg')
-        # self.imgShow2 被還原的圖片
-        self.image_e.setPixmap(QPixmap('res/original.jpg'))
+        # self.imgShow1 = cv2.imread('res/original.jpg')
+        # # self.imgShow2 被還原的圖片
+        # self.image_e.setPixmap(QPixmap('res/original.jpg'))
+
+        # 當原圖已經被還原，不需要再還原一次
+        self.firstTime_WaterNet = True
+        self.firstTime_Colorization = True
 
         # 指令與切換按鈕a, b, c, d
         button_a = QPushButton('waterNet', self)
@@ -99,24 +102,41 @@ class StartPage(QWidget, QtCore.QObject):
         button_d.clicked.connect(self.open_Analyze)
 
     def use_waterNet(self):
-        # Is first time?
-        # Lazy Load
-        # call_inference()
-        # def call_inference(source_path, weights_path): # inference.py (WaterNet)
-        #     # 設定參數
-        #     inference_path = os.path.expanduser("waternet/inference.py")
-        #     output_path = os.path.expanduser("")
 
-        #     #使用subprocess.call()來呼叫inference.py程式
-        #     subprocess.call([
-        #        "python3", inference_path,
-        #        "--source", source_path,
-        #        "--name", output_path,
-        #        "--weights", weights_path,
-        #     ])
+        self.imgShow2_path = 'res/waterNet.jpg'
+        def call_inference(): # inference.py (WaterNet)
+            # 設定參數
+            inference_path = os.path.expanduser("waternet/inference.py")
+            source_path = os.path.expanduser(self.img_path)
+            weights_path = os.path.expanduser("waternet/weights/last.pt")
+            output_path = os.path.expanduser('res/')
 
-        self.imgShow2 = cv2.imread('res/waternet.jpg')
-        self.image_show()
+            #使用subprocess.call()來呼叫inference.py程式
+            subprocess.call([
+               "python3", inference_path,
+               "--source", source_path,
+               "--weights", weights_path,
+                "--output", output_path,
+            ])
+        try:
+            if self.firstTime_WaterNet == True:
+                # lazy loaging
+                # 並設置大小
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                QApplication.processEvents() # 強制更新畫面
+
+                # 運行waterNet
+                call_inference()
+                self.firstTime_WaterNet = False
+                # 取得self.img_path的檔名
+                name = os.path.basename(self.img_path)
+                os.rename('res/'+name, 'res/waterNet.jpg')
+
+            self.imgShow2 = cv2.imread(self.imgShow2_path)
+            self.image_show()
+        except:
+            print("Error: 請先上傳圖片")
+            return
 
     def use_colorization(self):
         # Is first time?
@@ -126,9 +146,6 @@ class StartPage(QWidget, QtCore.QObject):
         self.imgShow2 = cv2.imread('res/colorization.jpg')
         self.image_show()
 
-    '''bugggggggggg
-    有上傳新圖片後會與之前上傳的還原圖片做對比的問題
-    '''
     def open_image(self):
         try:
             current_path = os.path.abspath(__file__)
@@ -143,12 +160,26 @@ class StartPage(QWidget, QtCore.QObject):
             self.img_path = openfile_name[0]
             self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (1024, 576))
             self.image_e.setPixmap(QPixmap(self.img_path))
+            self.imgShow2 = self.imgShow1.copy()
+            # 輸入新圖片，所以將還原次數重置
+            self.firstTime_WaterNet = True
+            self.firstTime_Colorization = True
 
     def open_Analyze(self):
-        self.analyze_page = Analyze(self)
-        self.image_uploaded.emit(self.img_path)
-        self.analyze_page.show()
-        # 重構介面，讓它不需要上傳圖片，從imageShow2直接讀取
+
+        try:
+            if self.imgShow2_path == '' and self.img_path == '':
+                return
+            self.analyze_page = Analyze(self)
+            if self.imgShow2_path == '':
+                self.image_uploaded.emit(self.img_path)
+            else:
+                self.image_uploaded.emit(self.imgShow2_path)
+
+            self.analyze_page.show()
+        except:
+            print("Error: 請先上傳圖片")
+            return
 
     def image_show(self):
 
@@ -260,22 +291,7 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         qpixmap = QPixmap.fromImage(qimage)
         # 在介面上顯示圖片
         self.cc_image.setPixmap(qpixmap)
-
-    # def open_image(self):
-    #     try:
-    #         current_path = os.path.abspath(__file__)
-    #         parent_path = os.path.dirname(os.path.dirname(os.path.dirname(current_path)))
-    #         dir_path = os.path.join(parent_path, 'input')
-    #         openfile_name = QFileDialog.getOpenFileName(self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
-    #     except:
-    #         return
-    #     if openfile_name[0] != '':
-    #         self.cc_image.reselect()
-    #         self.img_path = openfile_name[0]
-    #         self.ori_cc_img = cv2.imread(self.img_path)
-    #         self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
-    #         self.cc_image.show_image(self.resize_cc_img)
-
+    
     def get_cc_points(self):
         self.get_p = True
         self.cc_points = self.cc_image.return_points(self.ori_cc_img, self.get_p)
