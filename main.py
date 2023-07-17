@@ -104,7 +104,6 @@ class StartPage(QWidget, QtCore.QObject):
 
     def use_waterNet(self):
 
-        self.imgShow2_path = 'res/waterNet.jpg'
         def call_inference(): # inference.py (WaterNet)
             # 設定參數
             inference_path = os.path.expanduser("waternet/inference.py")
@@ -134,9 +133,9 @@ class StartPage(QWidget, QtCore.QObject):
                 # 將檔名改成 waterNet.jpg 以符合 imgShow2_path的預設位置
                 os.rename('res/'+name, 'res/waterNet.jpg')
 
+            self.imgShow2_path = 'res/waterNet.jpg'
             self.imgShow2 = cv2.imread(self.imgShow2_path)
             # 顯示對比畫面
-            self.imageNotProcessed = False # 用來判斷是否要顯示對比畫面
             self.image_show()
 
         except Exception as e:
