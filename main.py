@@ -19,10 +19,11 @@ class StartPage(QWidget, QtCore.QObject):
         # 設置物件
         # 主圖片
         self.image_e = QLabel(self)
+        
         # self.imgShow1 原圖片
-        # self.imgShow1 = cv2.imread('res/original.jpg')
-        # # self.imgShow2 被還原的圖片
-        # self.image_e.setPixmap(QPixmap('res/original.jpg'))
+        # self.imgShow2 被還原的圖片
+        # self.img_path 原圖片的路徑
+        # self.imgShow2_path 被還原的圖片的路徑
 
         # 當原圖已經被還原，不需要再還原一次
         self.firstTime_WaterNet = True
@@ -119,7 +120,7 @@ class StartPage(QWidget, QtCore.QObject):
                 "--output", output_path,
             ])
         try:
-            if self.firstTime_WaterNet == True:
+            if self.firstTime_WaterNet == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
                 self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
@@ -130,12 +131,17 @@ class StartPage(QWidget, QtCore.QObject):
                 self.firstTime_WaterNet = False
                 # 取得self.img_path的檔名
                 name = os.path.basename(self.img_path)
+                # 將檔名改成 waterNet.jpg 以符合 imgShow2_path的預設位置
                 os.rename('res/'+name, 'res/waterNet.jpg')
 
             self.imgShow2 = cv2.imread(self.imgShow2_path)
+            # 顯示對比畫面
+            self.imageNotProcessed = False # 用來判斷是否要顯示對比畫面
             self.image_show()
-        except:
-            print("Error: 請先上傳圖片")
+
+        except Exception as e:
+            print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
+            print(e)
             return
 
     def use_colorization(self):
@@ -154,7 +160,9 @@ class StartPage(QWidget, QtCore.QObject):
             dir_path = os.path.join(parent_path, 'input')
             openfile_name = QFileDialog.getOpenFileName(
                 self, 'select images', dir_path, 'Excel files(*.jpg , *.png)')
-        except:
+        except Exception as e:
+            print("Error: 請確認您的路徑是否有誤，錯誤訊息如下：")
+            print(e)
             return
         if openfile_name[0] != '':
             self.img_path = openfile_name[0]
@@ -164,22 +172,20 @@ class StartPage(QWidget, QtCore.QObject):
             # 輸入新圖片，所以將還原次數重置
             self.firstTime_WaterNet = True
             self.firstTime_Colorization = True
+            self.imgShow2_path = ''
 
     def open_Analyze(self):
 
         try:
-            if self.imgShow2_path == '' and self.img_path == '':
-                return
             self.analyze_page = Analyze(self)
             if self.imgShow2_path == '':
                 self.image_uploaded.emit(self.img_path)
             else:
                 self.image_uploaded.emit(self.imgShow2_path)
-
             self.analyze_page.show()
-        except:
-            print("Error: 請先上傳圖片")
-            return
+        except Exception as e:
+            print("Error: 請先上傳圖片或是有其他路徑問題，錯誤訊息如下：")
+            print(e)
 
     def image_show(self):
 
@@ -206,7 +212,6 @@ class StartPage(QWidget, QtCore.QObject):
         self.image_e.setMouseTracking(True)
         self.image_e.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
 
-        # 將圖片與線合併
         cv2.line(merged_image, line_start, line_end,
                  line_color, line_thickness)
 
