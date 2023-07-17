@@ -88,6 +88,24 @@ class StartPage(QWidget, QtCore.QObject):
         tab3.setLayout(layout_tab3)
         tab_widget.addTab(tab3, "Tab 3")
 
+        # 第四頁
+        tab4 = QWidget()
+        layout_tab4 = QHBoxLayout()
+        self.tab_image4 = QLabel(tab4)
+        self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(864, 576))
+        layout_tab4.addWidget(self.tab_image4)
+        tab4.setLayout(layout_tab4)
+        tab_widget.addTab(tab4, "人工抓取分析結果1.色塊")
+
+        # 第五頁
+        tab5 = QWidget()
+        layout_tab5 = QHBoxLayout()
+        self.tab_image5 = QLabel(tab5)
+        self.tab_image5.setPixmap(QPixmap('res/k-means.png').scaled(1094, 576))
+        layout_tab5.addWidget(self.tab_image5)
+        tab4.setLayout(layout_tab5)
+        tab_widget.addTab(tab5, "人工抓取分析結果2.長條圖")
+
         main_layout = QVBoxLayout()
         main_layout.addLayout(layout)
         main_layout.addWidget(tab_widget)
@@ -266,9 +284,8 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         self.PB_4points.clicked.connect(self.get_cc_points)
         self.PB_reset.clicked.connect(self.reset)
         self.PB_rot.clicked.connect(self.rot_rect)
-        self.PB_cal.clicked.connect(self.cal_diff)
         self.PB_ok.clicked.connect(self.get_scale)
-        self.PB_ok_2.clicked.connect(self.return_points)
+        self.PB_ok_2.clicked.connect(self.return_analyze_and_points)
         self.start_page = start_page
         self.start_page.image_uploaded.connect(self.handle_image_uploaded)
         self.img_path = ''
@@ -327,7 +344,10 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         tmp = self.scale_text.text()
         self.scale = float(tmp)
 
-    def return_points(self):
+    def return_analyze_and_points(self):
+        m_C, m_E, _ = CC_IQA.cc_task(self.rect_img, self.scale)
+        self.label_C.setText("mean C: {:.4f}".format(m_C))
+        self.label_E.setText("mean E: {:.4f}".format(m_E))
         pts = self.cc_image.return_points(self.ori_cc_img, self.get_p)
         if pts == False:
             QMessageBox.information(self, 'error', 'The number of selected points is insufficient',
@@ -341,12 +361,6 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
             f.write(', '.join(str(p) for p in pts))
         self.close()
         self.returnPoints.emit(pts)
-
-    def cal_diff(self):
-        m_C, m_E, rect_drawed = CC_IQA.cc_task(self.rect_img, self.scale)
-        self.show_image(self.area_image, rect_drawed, rgb=False)
-        self.label_C.setText("mean C: {:.4f}".format(m_C))
-        self.label_E.setText("mean E: {:.4f}".format(m_E))
 
     def on_exit_clicked(self):
         QApplication.exit()
