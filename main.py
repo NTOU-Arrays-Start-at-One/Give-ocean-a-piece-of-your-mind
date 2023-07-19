@@ -192,17 +192,35 @@ class StartPage(QWidget, QtCore.QObject):
             self.imgShow2_path = ''
 
     def open_Analyze(self):
-
         try:
             self.analyze_page = Analyze(self)
             if self.imgShow2_path == '':
                 self.image_uploaded.emit(self.img_path)
             else:
                 self.image_uploaded.emit(self.imgShow2_path)
+            self.analyze_page.returnPoints.connect(self.get_return_points)  # 連接信號和槽
             self.analyze_page.show()
+
         except Exception as e:
             print("Error: 請先上傳圖片或是有其他路徑問題，錯誤訊息如下：")
             print(e)
+
+    def update_image(self):
+        # 在圖片內容更改後，獲取新的圖片
+        new_image = cv2.imread('res/colorblock.png')
+        new_image1 = cv2.imread('res/k-means.png')
+        # 將 OpenCV 的圖片轉換為 QImage
+        height, width, _ = new_image.shape
+        height1, width1, _ = new_image1.shape
+        bytes_per_line = 3 * width
+        bytes_per_line1 = 3 * width1
+        qimage = QImage(new_image.data, width, height, bytes_per_line, QImage.Format_BGR888)
+        qimage1 = QImage(new_image1.data, width1, height1, bytes_per_line1, QImage.Format_BGR888)
+        # 將 QImage 轉換為 QPixmap
+        new_pixmap = QPixmap.fromImage(qimage)
+        new_pixmap1 = QPixmap.fromImage(qimage1)
+        self.tab_image4.setPixmap(new_pixmap.scaled(864, 576))
+        self.tab_image5.setPixmap(new_pixmap1.scaled(1094, 576))
 
     def image_show(self):
 
@@ -277,6 +295,13 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 將QImage格式的影像顯示在image_e標籤上
         self.image_e.setPixmap(QPixmap.fromImage(qImg))
+
+    # 接收回傳的點並更新影像
+    @QtCore.pyqtSlot(list)
+    def get_return_points(self, points):
+        print(points)
+        self.return_points = points
+        self.update_image()
 
 
 class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
@@ -363,8 +388,8 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         output_file = os.path.join(parent_path, "points.txt")
         with open(output_file, 'w') as f:
             f.write(', '.join(str(p) for p in pts))
-        self.close()
         self.returnPoints.emit(pts)
+        self.close()
 
     def on_exit_clicked(self):
         QApplication.exit()
