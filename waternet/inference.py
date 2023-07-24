@@ -85,7 +85,7 @@ args = parser.parse_args()
 assert args.source is not None, "No input image/video specified in --source!"
 
 # Load weights ------
-device = "cpu"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 model = WaterNet()
