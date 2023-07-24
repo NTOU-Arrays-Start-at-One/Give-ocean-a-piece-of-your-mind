@@ -155,19 +155,46 @@ class StartPage(QWidget, QtCore.QObject):
             self.imgShow2 = cv2.imread(self.imgShow2_path)
             # 顯示對比畫面
             self.image_show()
-
+                
         except Exception as e:
             print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
             print(e)
             return
 
     def use_colorization(self):
-        # Is first time?
-        # Lazy Load
-        # call
+        
+        def call_colorization():
+            # 設定參數
+            colorization_path = os.path.expanduser("neural-colorization/colorize.py")
+            source_path = os.path.expanduser(self.img_path)
+            weights_path = os.path.expanduser("neural-colorization/G.pth")
+            output_path = os.path.expanduser("res/colorization.jpg")
 
-        self.imgShow2 = cv2.imread('res/colorization.jpg')
-        self.image_show()
+            #使用subprocess.call()來呼叫colorization.py程式
+            subprocess.call([
+               "python3", colorization_path,
+               "-i", source_path,
+               "-m", weights_path,
+                "-o", output_path,
+                "--gpu", "0",
+            ])
+        try:
+            if self.firstTime_Colorization == True and self.img_path != None:
+                # lazy loaging
+                # 並設置大小
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                QApplication.processEvents() # 強制更新畫面
+
+                # 運行colorization
+                call_colorization()
+                self.firstTime_Colorization = False
+            self.imgShow2_path = 'res/colorization.jpg'
+            self.imgShow2 = cv2.imread(self.imgShow2_path)
+            self.image_show()
+        except Exception as e:
+            print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
+            print(e)
+            return
 
     def open_image(self):
         try:
