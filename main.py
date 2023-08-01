@@ -181,7 +181,7 @@ class StartPage(QWidget, QtCore.QObject):
                "-i", source_path,
                "-m", weights_path,
                 "-o", output_path,
-                "--gpu", "0",
+                "--gpu", "-1",
             ])
         try:
             if self.firstTime_Colorization == True and self.img_path != None:
@@ -484,7 +484,7 @@ class Video(QWidget, QtCore.QObject):
         self.video_show()
     
     def use_waterNet(self):
-        def call_inference(self): # inference.py (WaterNet)
+        def call_inference(): # inference.py (WaterNet)
             inference_path = os.path.expanduser("waternet/inference.py")
             source_path = os.path.expanduser(self.video_path)
             weights_path = os.path.expanduser("waternet/weights/last.pt")
@@ -497,7 +497,7 @@ class Video(QWidget, QtCore.QObject):
                 "--output", output_path,
             ])
         try:
-            if self.videoShow2_path != None:
+            if self.video_path != None:
                 # lazy loaging
                 # 並設置大小
                 self.video_label.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))

@@ -11,6 +11,7 @@ from waternet.net import WaterNet
 # Config ------
 
 wd = Path(__file__).parent.resolve()  # repo root
+savedir = wd / "output"
 outputdir = wd / "output"
 default_ckpt_dir_relative = "waternet_exported_state_dict-daa0ee.pt"
 default_ckpt_dir_absolute = wd / default_ckpt_dir_relative
@@ -85,7 +86,7 @@ args = parser.parse_args()
 assert args.source is not None, "No input image/video specified in --source!"
 
 # Load weights ------
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 print(f"Using device: {device}")
 
 model = WaterNet()
