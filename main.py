@@ -444,14 +444,17 @@ class Video(QWidget, QtCore.QObject):
 
         # Create buttons for opening and playing the video
         self.open_button = QPushButton('Open Video', self)
+        self.test_button = QPushButton('Test Video', self)
 
         # Set up the layout
         layout = QVBoxLayout()
         layout.addWidget(self.video_label)
         layout.addWidget(self.open_button)
+        layout.addWidget(self.test_button)
 
         # Connect button clicks to corresponding functions
         self.open_button.clicked.connect(self.open_video)
+        self.test_button.clicked.connect(self.test_video)
 
         self.setLayout(layout)
         self.setWindowTitle("Video Player")
@@ -473,7 +476,6 @@ class Video(QWidget, QtCore.QObject):
                 self.video_path = video_file
                 self.videoShow_path = self.video_path
                 self.video_capture = cv2.VideoCapture(video_file)
-                self.play_button.setEnabled(True)
                 self.playing = False
             
         except Exception as e:
@@ -483,6 +485,87 @@ class Video(QWidget, QtCore.QObject):
         self.use_waterNet()
         self.video_show()
     
+    def test_video(self):
+        # 讀取兩段影片
+        cap1 = cv2.VideoCapture('res/test.mp4')
+        cap2 = cv2.VideoCapture('res/test2.mp4')
+
+        # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
+        # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = 640
+        height = 360
+        fps = cap1.get(cv2.CAP_PROP_FPS)
+
+        # 生成一條紅色的線
+        line_thickness = 2
+        line_length = int(width / 2)
+        line_color = (0, 0, 255) # BGR格式，此處為紅色
+        line_x = int(width / 2)
+        line_start = (line_x, 0)
+        line_end = (line_x, height)
+
+        # 生成一張空白的黑色圖片，大小與影片相同
+        merged_image = np.zeros((height, width, 3), dtype=np.uint8)
+
+        # 設置疊加影片的起始時間
+        start_time = 0
+        cap1.set(cv2.CAP_PROP_POS_MSEC, start_time)
+        cap2.set(cv2.CAP_PROP_POS_MSEC, start_time)
+
+        # 顯示疊加後的影片
+        while True:
+            # 讀取兩個影格
+            ret1, frame1 = cap1.read()
+            ret2, frame2 = cap2.read()
+
+            # 若其中一個影片已讀取完畢，則退出迴圈
+            if not ret1 or not ret2:
+                break
+            
+            # 調整影格大小
+            frame1 = cv2.resize(frame1, (width, height))
+            frame2 = cv2.resize(frame2, (width, height))
+
+            # 顯示疊加後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            def on_mouse(event, x, y, flags, param):
+                nonlocal line_x, line_start, line_end, merged_image, frame1, frame2
+                if event == cv2.EVENT_MOUSEMOVE:
+                    line_x = x
+                    # 更新線的位置
+                    line_start = (line_x, 0)
+                    line_end = (line_x, height)
+
+                    # 將img1與img2分別放在空白圖片的左半邊與右半邊
+                    merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+                    merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+
+                    # 畫線
+                    cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+
+                    # 顯示更新後的圖片
+                    cv2.imshow("Merged Image", merged_image)
+
+            # 將img1與img2分別放在空白圖片的左半邊與右半邊
+            merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+            merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+            # 畫線
+            cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+            
+            # 顯示更新後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            # 設置滑鼠事件的回調函數
+            cv2.setMouseCallback("Merged Image", on_mouse)
+            # 按下ESC鍵退出
+            k = cv2.waitKey(int(500//fps))
+            if k == 27: # Esc
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+                break
+
     def use_waterNet(self):
         def call_inference(): # inference.py (WaterNet)
             inference_path = os.path.expanduser("waternet/inference.py")
@@ -522,6 +605,8 @@ class Video(QWidget, QtCore.QObject):
         # cap2 = cv2.VideoCapture('video2.mp4')
         cap1 = cv2.VideoCapture(self.videoShow_path)
         cap2 = cv2.VideoCapture(self.videoShow2_path)
+        print(self.videoShow_path)
+        print(self.videoShow2_path)
 
         # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
         # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -559,10 +644,6 @@ class Video(QWidget, QtCore.QObject):
             # 調整影格大小
             frame1 = cv2.resize(frame1, (width, height))
             frame2 = cv2.resize(frame2, (width, height))
-
-            # 影像處理
-            frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-            frame2 = cv2.cvtColor(frame2, cv2.COLOR_GRAY2BGR)
 
             # 顯示疊加後的圖片
             cv2.imshow("Merged Image", merged_image)

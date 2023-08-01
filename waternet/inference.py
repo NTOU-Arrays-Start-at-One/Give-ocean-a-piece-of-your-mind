@@ -259,7 +259,7 @@ for fdir in fdirs:
         if not savedir.exists():
             savedir.mkdir()
 
-        codec = cv2.VideoWriter.fourcc(*"avc1")
+        codec = cv2.VideoWriter.fourcc(*"mp4v")
         video_writer = cv2.VideoWriter(
             outpath, codec, frames_per_second, (frame_width, frame_height)
         )
