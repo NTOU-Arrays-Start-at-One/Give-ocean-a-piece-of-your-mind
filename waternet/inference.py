@@ -11,6 +11,7 @@ from waternet.net import WaterNet
 # Config ------
 
 wd = Path(__file__).parent.resolve()  # repo root
+savedir = wd / "output"
 outputdir = wd / "output"
 default_ckpt_dir_relative = "waternet_exported_state_dict-daa0ee.pt"
 default_ckpt_dir_absolute = wd / default_ckpt_dir_relative
@@ -85,7 +86,7 @@ args = parser.parse_args()
 assert args.source is not None, "No input image/video specified in --source!"
 
 # Load weights ------
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 print(f"Using device: {device}")
 
 model = WaterNet()
@@ -258,7 +259,7 @@ for fdir in fdirs:
         if not savedir.exists():
             savedir.mkdir()
 
-        codec = cv2.VideoWriter.fourcc(*"avc1")
+        codec = cv2.VideoWriter.fourcc(*"mp4v")
         video_writer = cv2.VideoWriter(
             outpath, codec, frames_per_second, (frame_width, frame_height)
         )

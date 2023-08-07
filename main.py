@@ -24,20 +24,27 @@ class StartPage(QWidget, QtCore.QObject):
         # self.imgShow2 被還原的圖片
         # self.img_path 原圖片的路徑
         # self.imgShow2_path 被還原的圖片的路徑
+        # self.videoShow_path 原影片的路徑
+        # self.videoShow2_path 被還原的影片的路徑
 
         # 當原圖已經被還原，不需要再還原一次
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
+
+        # 示範區塊大小
+        self.DEMO_SIZE = (700, 394)
+        self.MAIN_SIZE = (1900, 1060)
 
         # 指令與切換按鈕a, b, c, d
         button_a = QPushButton('waterNet', self)
         button_b = QPushButton('colorization', self)
         button_c = QPushButton('open image', self)
         button_d = QPushButton('analyze', self)
+        button_g = QPushButton('open video', self)
 
         # 副圖片
         self.image_f = QLabel(self)
-        self.image_f.setPixmap(QPixmap('Standard.png').scaled(600, 600))
+        self.image_f.setPixmap(QPixmap('Standard.png').scaled(400,400))
 
         # 版面配置
         layout = QHBoxLayout()
@@ -51,6 +58,7 @@ class StartPage(QWidget, QtCore.QObject):
         layout_button.addWidget(button_b)
         layout_button.addWidget(button_c)
         layout_button.addWidget(button_d)
+        layout_button.addWidget(button_g)
         layout_left.addLayout(layout_button)
 
         layout_right.addStretch()
@@ -62,32 +70,32 @@ class StartPage(QWidget, QtCore.QObject):
         # 頁籤
         tab_widget = QTabWidget()
 
-        # 第一頁
-        tab1 = QWidget()
-        layout_tab1 = QHBoxLayout()
-        self.tab_image1 = QLabel(tab1)
-        self.tab_image1.setPixmap(QPixmap('res/Figure_1.png'))
-        layout_tab1.addWidget(self.tab_image1)
-        tab1.setLayout(layout_tab1)
-        tab_widget.addTab(tab1, "Tab 1")
+        # # 第一頁
+        # tab1 = QWidget()
+        # layout_tab1 = QHBoxLayout()
+        # self.tab_image1 = QLabel(tab1)
+        # self.tab_image1.setPixmap(QPixmap('res/Figure_1.png'))
+        # layout_tab1.addWidget(self.tab_image1)
+        # tab1.setLayout(layout_tab1)
+        # tab_widget.addTab(tab1, "Tab 1")
 
-        # 第二頁
-        tab2 = QWidget()
-        layout_tab2 = QHBoxLayout()
-        self.tab_image2 = QLabel(tab2)
-        self.tab_image2.setPixmap(QPixmap('res/Figure_2.png'))
-        layout_tab2.addWidget(self.tab_image2)
-        tab2.setLayout(layout_tab2)
-        tab_widget.addTab(tab2, "Tab 2")
+        # # 第二頁
+        # tab2 = QWidget()
+        # layout_tab2 = QHBoxLayout()
+        # self.tab_image2 = QLabel(tab2)
+        # self.tab_image2.setPixmap(QPixmap('res/Figure_2.png'))
+        # layout_tab2.addWidget(self.tab_image2)
+        # tab2.setLayout(layout_tab2)
+        # tab_widget.addTab(tab2, "Tab 2")
 
-        # 第三頁
-        tab3 = QWidget()
-        layout_tab3 = QHBoxLayout()
-        self.tab_image3 = QLabel(tab3)
-        self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
-        layout_tab3.addWidget(self.tab_image3)
-        tab3.setLayout(layout_tab3)
-        tab_widget.addTab(tab3, "Tab 3")
+        # # 第三頁
+        # tab3 = QWidget()
+        # layout_tab3 = QHBoxLayout()
+        # self.tab_image3 = QLabel(tab3)
+        # self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
+        # layout_tab3.addWidget(self.tab_image3)
+        # tab3.setLayout(layout_tab3)
+        # tab_widget.addTab(tab3, "Tab 3")
 
         # 第四頁
         tab4 = QWidget()
@@ -113,12 +121,14 @@ class StartPage(QWidget, QtCore.QObject):
 
         self.setLayout(main_layout)
         self.setWindowTitle("Start Page")
+        self.setFixedSize(self.MAIN_SIZE[0], self.MAIN_SIZE[1])
 
         # 點擊事件
         button_a.clicked.connect(self.use_waterNet)
         button_b.clicked.connect(self.use_colorization)
         button_c.clicked.connect(self.open_image)
         button_d.clicked.connect(self.open_Analyze)
+        button_g.clicked.connect(self.open_video)
 
     def use_waterNet(self):
 
@@ -140,7 +150,7 @@ class StartPage(QWidget, QtCore.QObject):
             if self.firstTime_WaterNet == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行waterNet
@@ -176,13 +186,13 @@ class StartPage(QWidget, QtCore.QObject):
                "-i", source_path,
                "-m", weights_path,
                 "-o", output_path,
-                "--gpu", "0",
+                "--gpu", "-1",
             ])
         try:
             if self.firstTime_Colorization == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行colorization
@@ -210,8 +220,8 @@ class StartPage(QWidget, QtCore.QObject):
             return
         if openfile_name[0] != '':
             self.img_path = openfile_name[0]
-            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (1024, 576))
-            self.image_e.setPixmap(QPixmap(self.img_path))
+            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+            self.image_e.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
             self.imgShow2 = self.imgShow1.copy()
             # 輸入新圖片，所以將還原次數重置
             self.firstTime_WaterNet = True
@@ -232,6 +242,14 @@ class StartPage(QWidget, QtCore.QObject):
             print("Error: 請先上傳圖片或是有其他路徑問題，錯誤訊息如下：")
             print(e)
 
+    def open_video(self):
+        try:
+            self.video_page = Video()
+            self.video_page.show()
+        except Exception as e:
+            print("Error: 請先上傳影片或是有其他路徑問題，錯誤訊息如下：")
+            print(e)
+    
     def update_image(self):
         # 在圖片內容更改後，獲取新的圖片
         new_image = cv2.imread('res/colorblock.png')
@@ -421,6 +439,255 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
     def on_exit_clicked(self):
         QApplication.exit()
 
+
+class Video(QWidget, QtCore.QObject):
+    def __init__(self):
+        super().__init__()
+
+        # Create a QLabel to display the video frames
+        self.video_label = QLabel(self)
+
+        # Create buttons for opening and playing the video
+        self.open_button = QPushButton('Open Video', self)
+        self.test_button = QPushButton('Test Video', self)
+
+        # Set up the layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.video_label)
+        layout.addWidget(self.open_button)
+        layout.addWidget(self.test_button)
+
+        # Connect button clicks to corresponding functions
+        self.open_button.clicked.connect(self.open_video)
+        self.test_button.clicked.connect(self.test_video)
+
+        self.setLayout(layout)
+        self.setWindowTitle("Video Player")
+
+        # Video variables
+        self.video_path = ""
+        self.video_capture = None
+        self.playing = False
+
+    def open_video(self):
+        try:
+            current_path = os.path.abspath(__file__)
+            parent_path = os.path.dirname(
+                os.path.dirname(os.path.dirname(current_path)))
+            dir_path = os.path.join(parent_path, 'input')
+            video_file, _ = QFileDialog.getOpenFileName(
+                self, 'Select Video File', dir_path, 'Video files (*.mp4 *.avi)')
+            if video_file:
+                self.video_path = video_file
+                self.videoShow_path = self.video_path
+                self.video_capture = cv2.VideoCapture(video_file)
+                self.playing = False
+            
+        except Exception as e:
+            print("Error: Unable to open the video file. Error message:")
+            print(e)
+        
+        self.use_waterNet()
+        self.video_show()
+    
+    def test_video(self):
+        # 讀取兩段影片
+        cap1 = cv2.VideoCapture('res/test_2.mp4')
+        cap2 = cv2.VideoCapture('res/test_1.mp4')
+
+        # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
+        # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = 640
+        height = 360
+        fps = cap1.get(cv2.CAP_PROP_FPS)
+
+        # 生成一條紅色的線
+        line_thickness = 2
+        line_length = int(width / 2)
+        line_color = (0, 0, 255) # BGR格式，此處為紅色
+        line_x = int(width / 2)
+        line_start = (line_x, 0)
+        line_end = (line_x, height)
+
+        # 生成一張空白的黑色圖片，大小與影片相同
+        merged_image = np.zeros((height, width, 3), dtype=np.uint8)
+
+        # 設置疊加影片的起始時間
+        start_time = 0
+        cap1.set(cv2.CAP_PROP_POS_MSEC, start_time)
+        cap2.set(cv2.CAP_PROP_POS_MSEC, start_time)
+
+        # 顯示疊加後的影片
+        while True:
+            # 讀取兩個影格
+            ret1, frame1 = cap1.read()
+            ret2, frame2 = cap2.read()
+
+            # 若其中一個影片已讀取完畢，則退出迴圈
+            if not ret1 or not ret2:
+                break
+            
+            # 調整影格大小
+            frame1 = cv2.resize(frame1, (width, height))
+            frame2 = cv2.resize(frame2, (width, height))
+
+            # 顯示疊加後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            def on_mouse(event, x, y, flags, param):
+                nonlocal line_x, line_start, line_end, merged_image, frame1, frame2
+                if event == cv2.EVENT_MOUSEMOVE:
+                    line_x = x
+                    # 更新線的位置
+                    line_start = (line_x, 0)
+                    line_end = (line_x, height)
+
+                    # 將img1與img2分別放在空白圖片的左半邊與右半邊
+                    merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+                    merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+
+                    # 畫線
+                    cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+
+                    # 顯示更新後的圖片
+                    cv2.imshow("Merged Image", merged_image)
+
+            # 將img1與img2分別放在空白圖片的左半邊與右半邊
+            merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+            merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+            # 畫線
+            cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+            
+            # 顯示更新後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            # 設置滑鼠事件的回調函數
+            cv2.setMouseCallback("Merged Image", on_mouse)
+            # 按下ESC鍵退出
+            k = cv2.waitKey(int(500//fps))
+            if k == 27: # Esc
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+                break
+
+    def use_waterNet(self):
+        def call_inference(): # inference.py (WaterNet)
+            inference_path = os.path.expanduser("waternet/inference.py")
+            source_path = os.path.expanduser(self.video_path)
+            weights_path = os.path.expanduser("waternet/weights/last.pt")
+            output_path = os.path.expanduser('res/')
+
+            subprocess.call([
+                "python3", inference_path,
+                "--source", source_path,
+                "--weights", weights_path,
+                "--output", output_path,
+            ])
+        try:
+            if self.video_path != None:
+                # lazy loaging
+                # 並設置大小
+                self.video_label.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                QApplication.processEvents() # 強制更新畫面
+                # 運行waterNet
+                call_inference()
+                name = os.path.basename(self.video_path)
+                os.rename('res/'+name, 'res/waterNet.mp4')
+            self.videoShow2_path = 'res/waterNet.mp4'
+            self.videoShow2 = cv2.imread(self.videoShow2_path)
+            # 顯示對比畫面
+            self.video_show()
+
+        except Exception as e:
+            print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
+            print(e)
+            return
+        
+    def video_show(self):
+        # 讀取兩段影片
+        # cap1 = cv2.VideoCapture('video1.mp4')
+        # cap2 = cv2.VideoCapture('video2.mp4')
+        cap1 = cv2.VideoCapture(self.videoShow_path)
+        cap2 = cv2.VideoCapture(self.videoShow2_path)
+        print(self.videoShow_path)
+        print(self.videoShow2_path)
+
+        # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
+        # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = 640
+        height = 360
+        fps = cap1.get(cv2.CAP_PROP_FPS)
+
+        # 生成一條紅色的線
+        line_thickness = 2
+        line_length = int(width / 2)
+        line_color = (0, 0, 255) # BGR格式，此處為紅色
+        line_x = int(width / 2)
+        line_start = (line_x, 0)
+        line_end = (line_x, height)
+
+        # 生成一張空白的黑色圖片，大小與影片相同
+        merged_image = np.zeros((height, width, 3), dtype=np.uint8)
+
+        # 設置疊加影片的起始時間
+        start_time = 0
+        cap1.set(cv2.CAP_PROP_POS_MSEC, start_time)
+        cap2.set(cv2.CAP_PROP_POS_MSEC, start_time)
+
+        # 顯示疊加後的影片
+        while True:
+            # 讀取兩個影格
+            ret1, frame1 = cap1.read()
+            ret2, frame2 = cap2.read()
+
+            # 若其中一個影片已讀取完畢，則退出迴圈
+            if not ret1 or not ret2:
+                break
+            
+            # 調整影格大小
+            frame1 = cv2.resize(frame1, (width, height))
+            frame2 = cv2.resize(frame2, (width, height))
+
+            # 顯示疊加後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            def on_mouse(event, x, y, flags, param):
+                nonlocal line_x, line_start, line_end, merged_image, frame1, frame2
+                if event == cv2.EVENT_MOUSEMOVE:
+                    line_x = x
+                    # 更新線的位置
+                    line_start = (line_x, 0)
+                    line_end = (line_x, height)
+
+                    # 將img1與img2分別放在空白圖片的左半邊與右半邊
+                    merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+                    merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+
+                    # 畫線
+                    cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+
+                    # 顯示更新後的圖片
+                    cv2.imshow("Merged Image", merged_image)
+
+            # 將img1與img2分別放在空白圖片的左半邊與右半邊
+            merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
+            merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+            # 畫線
+            cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+            
+            # 顯示更新後的圖片
+            cv2.imshow("Merged Image", merged_image)
+
+            # 設置滑鼠事件的回調函數
+            cv2.setMouseCallback("Merged Image", on_mouse)
+            # 按下ESC鍵退出
+            k = cv2.waitKey(int(500//fps))
+            if k == 27: # Esc
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+                break
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
