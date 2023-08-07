@@ -31,6 +31,10 @@ class StartPage(QWidget, QtCore.QObject):
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
 
+        # 示範區塊大小
+        self.DEMO_SIZE = (700, 394)
+        self.MAIN_SIZE = (1900, 1060)
+
         # 指令與切換按鈕a, b, c, d
         button_a = QPushButton('waterNet', self)
         button_b = QPushButton('colorization', self)
@@ -40,7 +44,7 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 副圖片
         self.image_f = QLabel(self)
-        self.image_f.setPixmap(QPixmap('Standard.png').scaled(600, 600))
+        self.image_f.setPixmap(QPixmap('Standard.png').scaled(400,400))
 
         # 版面配置
         layout = QHBoxLayout()
@@ -66,32 +70,32 @@ class StartPage(QWidget, QtCore.QObject):
         # 頁籤
         tab_widget = QTabWidget()
 
-        # 第一頁
-        tab1 = QWidget()
-        layout_tab1 = QHBoxLayout()
-        self.tab_image1 = QLabel(tab1)
-        self.tab_image1.setPixmap(QPixmap('res/Figure_1.png'))
-        layout_tab1.addWidget(self.tab_image1)
-        tab1.setLayout(layout_tab1)
-        tab_widget.addTab(tab1, "Tab 1")
+        # # 第一頁
+        # tab1 = QWidget()
+        # layout_tab1 = QHBoxLayout()
+        # self.tab_image1 = QLabel(tab1)
+        # self.tab_image1.setPixmap(QPixmap('res/Figure_1.png'))
+        # layout_tab1.addWidget(self.tab_image1)
+        # tab1.setLayout(layout_tab1)
+        # tab_widget.addTab(tab1, "Tab 1")
 
-        # 第二頁
-        tab2 = QWidget()
-        layout_tab2 = QHBoxLayout()
-        self.tab_image2 = QLabel(tab2)
-        self.tab_image2.setPixmap(QPixmap('res/Figure_2.png'))
-        layout_tab2.addWidget(self.tab_image2)
-        tab2.setLayout(layout_tab2)
-        tab_widget.addTab(tab2, "Tab 2")
+        # # 第二頁
+        # tab2 = QWidget()
+        # layout_tab2 = QHBoxLayout()
+        # self.tab_image2 = QLabel(tab2)
+        # self.tab_image2.setPixmap(QPixmap('res/Figure_2.png'))
+        # layout_tab2.addWidget(self.tab_image2)
+        # tab2.setLayout(layout_tab2)
+        # tab_widget.addTab(tab2, "Tab 2")
 
-        # 第三頁
-        tab3 = QWidget()
-        layout_tab3 = QHBoxLayout()
-        self.tab_image3 = QLabel(tab3)
-        self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
-        layout_tab3.addWidget(self.tab_image3)
-        tab3.setLayout(layout_tab3)
-        tab_widget.addTab(tab3, "Tab 3")
+        # # 第三頁
+        # tab3 = QWidget()
+        # layout_tab3 = QHBoxLayout()
+        # self.tab_image3 = QLabel(tab3)
+        # self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
+        # layout_tab3.addWidget(self.tab_image3)
+        # tab3.setLayout(layout_tab3)
+        # tab_widget.addTab(tab3, "Tab 3")
 
         # 第四頁
         tab4 = QWidget()
@@ -117,6 +121,7 @@ class StartPage(QWidget, QtCore.QObject):
 
         self.setLayout(main_layout)
         self.setWindowTitle("Start Page")
+        self.setFixedSize(self.MAIN_SIZE[0], self.MAIN_SIZE[1])
 
         # 點擊事件
         button_a.clicked.connect(self.use_waterNet)
@@ -145,7 +150,7 @@ class StartPage(QWidget, QtCore.QObject):
             if self.firstTime_WaterNet == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行waterNet
@@ -187,7 +192,7 @@ class StartPage(QWidget, QtCore.QObject):
             if self.firstTime_Colorization == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行colorization
@@ -215,8 +220,8 @@ class StartPage(QWidget, QtCore.QObject):
             return
         if openfile_name[0] != '':
             self.img_path = openfile_name[0]
-            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (1024, 576))
-            self.image_e.setPixmap(QPixmap(self.img_path))
+            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+            self.image_e.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
             self.imgShow2 = self.imgShow1.copy()
             # 輸入新圖片，所以將還原次數重置
             self.firstTime_WaterNet = True
@@ -487,8 +492,8 @@ class Video(QWidget, QtCore.QObject):
     
     def test_video(self):
         # 讀取兩段影片
-        cap1 = cv2.VideoCapture('res/test.mp4')
-        cap2 = cv2.VideoCapture('res/test2.mp4')
+        cap1 = cv2.VideoCapture('res/test_2.mp4')
+        cap2 = cv2.VideoCapture('res/test_1.mp4')
 
         # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
         # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
