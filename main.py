@@ -30,6 +30,7 @@ class StartPage(QWidget, QtCore.QObject):
         # 當原圖已經被還原，不需要再還原一次
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
+        self.firstTime_Detection = True
 
         # 示範區塊大小
         self.DEMO_SIZE = (700, 394)
@@ -40,6 +41,7 @@ class StartPage(QWidget, QtCore.QObject):
         button_b = QPushButton('colorization', self)
         button_c = QPushButton('open image', self)
         button_d = QPushButton('analyze', self)
+        button_e = QPushButton('detection',self)
         button_g = QPushButton('open video', self)
 
         # 副圖片
@@ -59,6 +61,7 @@ class StartPage(QWidget, QtCore.QObject):
         layout_button.addWidget(button_c)
         layout_button.addWidget(button_d)
         layout_button.addWidget(button_g)
+        layout_button.addWidget(button_e)
         layout_left.addLayout(layout_button)
 
         layout_right.addStretch()
@@ -128,6 +131,7 @@ class StartPage(QWidget, QtCore.QObject):
         button_b.clicked.connect(self.use_colorization)
         button_c.clicked.connect(self.open_image)
         button_d.clicked.connect(self.open_Analyze)
+        button_e.clicked.connect(self.use_detection)
         button_g.clicked.connect(self.open_video)
 
     def use_waterNet(self):
@@ -205,6 +209,65 @@ class StartPage(QWidget, QtCore.QObject):
             print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
             print(e)
             return
+    
+    def use_detection(self):
+        
+        def call_detection():
+            # 設定參數
+            source_path = os.path.expanduser(self.img_path)
+            weights_path = os.path.expanduser("detection/best.pt")
+
+            #使用subprocess.call()來呼叫colorization.py程式
+            subprocess.call([
+               "yolo",
+               "detect",
+               "predict",
+               f"model={weights_path}",
+               f"source={source_path}",
+               "save=true",
+            ])
+        def get_max_number_subfolder(directory):
+            if not os.path.isdir(directory):
+                raise ValueError("path is not dir")
+            subfolders = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
+            max_number = -1
+            max_number_subfolder = None
+            for subfolder in subfolders:
+                if subfolder.startswith("predict") and subfolder[7:].isdigit():
+                    current_number = int(subfolder[7:])
+                    if current_number > max_number:
+                        max_number = current_number
+                        max_number_subfolder = subfolder
+            if not max_number_subfolder:
+                raise ValueError("指定的資料夾中沒有符合條件的子資料夾")
+            return os.path.join(directory, max_number_subfolder)
+        def get_single_image_path(directory):
+            if not os.path.isdir(directory):
+                raise ValueError("指定的路徑不是資料夾")
+            image_files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+            if len(image_files) != 1:
+                raise ValueError("指定的資料夾中應該只有一個影像檔")
+            return os.path.join(directory, image_files[0])
+        try:
+            if self.firstTime_Colorization == True and self.img_path != None:
+                # lazy loaging
+                # 並設置大小
+                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                QApplication.processEvents() # 強制更新畫面
+
+                # 運行yolo
+                call_detection()
+                self.firstTime_Detection = False
+            folder_path = "runs/detect"
+            result_path = get_max_number_subfolder(folder_path)
+            image_path = get_single_image_path(result_path)
+            self.imgShow2_path = image_path
+            self.imgShow2 = cv2.imread(self.imgShow2_path)
+            self.image_show()
+        except Exception as e:
+            print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
+            print(e)
+            return
 
     def open_image(self):
         try:
@@ -226,6 +289,7 @@ class StartPage(QWidget, QtCore.QObject):
             # 輸入新圖片，所以將還原次數重置
             self.firstTime_WaterNet = True
             self.firstTime_Colorization = True
+            self.firstTime_Detection = True
             self.imgShow2_path = ''
 
     def open_Analyze(self):
