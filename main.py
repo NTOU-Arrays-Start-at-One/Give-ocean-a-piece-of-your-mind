@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMa
 from CC_ui import Ui_MainWindow
 from PyQt5.QtGui import QImage, QPixmap, QMovie
 import PyQt5.QtCore as QtCore
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 import cv2
 import numpy as np
 import os
@@ -104,7 +105,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab4 = QWidget()
         layout_tab4 = QHBoxLayout()
         self.tab_image4 = QLabel(tab4)
-        self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(864, 576))
+        self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(800, 533))
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
         tab_widget.addTab(tab4, "人工抓取分析結果1.色塊")
@@ -328,8 +329,10 @@ class StartPage(QWidget, QtCore.QObject):
         # 將 QImage 轉換為 QPixmap
         new_pixmap = QPixmap.fromImage(qimage)
         new_pixmap1 = QPixmap.fromImage(qimage1)
-        self.tab_image4.setPixmap(new_pixmap.scaled(864, 576))
-        self.tab_image5.setPixmap(new_pixmap1.scaled(1094, 576))
+        scaled_pixmap = new_pixmap.scaled(800, 533, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaled_pixmap1 = new_pixmap1.scaled(1094, 576, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.tab_image4.setPixmap(scaled_pixmap)
+        self.tab_image5.setPixmap(scaled_pixmap1)
 
     def image_show(self):
 
