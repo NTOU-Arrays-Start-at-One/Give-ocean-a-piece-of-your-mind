@@ -341,7 +341,7 @@ class StartPage(QWidget, QtCore.QObject):
         self.times += 1
         if(self.times == 1):
             pixmap = QPixmap('res/delta_e_1.png')
-            scaled_pixmap = pixmap.scaled(425, 425, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.image_f.setPixmap(scaled_pixmap)
             #self.tab_image3.setPixmap(QPixmap('res/Water-Net.png'))
             pixmap = QPixmap('res/Water-Net.png')
@@ -350,7 +350,7 @@ class StartPage(QWidget, QtCore.QObject):
         elif(self.times == 2):
             #self.image_f.setPixmap(QPixmap('res/delta_e_2.png').scaled(500,500))
             pixmap = QPixmap('res/delta_e_2.png')
-            scaled_pixmap = pixmap.scaled(425, 425, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.image_f.setPixmap(scaled_pixmap)
             #self.tab_image3.setPixmap(QPixmap('res/neural-colorization.png'))
             pixmap = QPixmap('res/neural-colorization.png')
