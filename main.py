@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget
 from CC_ui import Ui_MainWindow
 from PyQt5.QtGui import QImage, QPixmap, QMovie
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt
 import PyQt5.QtCore as QtCore
 import cv2
 import numpy as np
@@ -15,6 +16,8 @@ class StartPage(QWidget, QtCore.QObject):
 
     def __init__(self):
         super().__init__()
+        #demo
+        self.times = 0
 
         # 設置物件
         # 主圖片
@@ -88,14 +91,14 @@ class StartPage(QWidget, QtCore.QObject):
         # tab2.setLayout(layout_tab2)
         # tab_widget.addTab(tab2, "Tab 2")
 
-        # # 第三頁
-        # tab3 = QWidget()
-        # layout_tab3 = QHBoxLayout()
-        # self.tab_image3 = QLabel(tab3)
-        # self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
-        # layout_tab3.addWidget(self.tab_image3)
-        # tab3.setLayout(layout_tab3)
-        # tab_widget.addTab(tab3, "Tab 3")
+        # 第三頁
+        tab3 = QWidget()
+        layout_tab3 = QHBoxLayout()
+        self.tab_image3 = QLabel(tab3)
+        self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
+        layout_tab3.addWidget(self.tab_image3)
+        tab3.setLayout(layout_tab3)
+        tab_widget.addTab(tab3, "人工抓取分析結果1.Delta E")
 
         # 第四頁
         tab4 = QWidget()
@@ -104,7 +107,7 @@ class StartPage(QWidget, QtCore.QObject):
         self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(864, 576))
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
-        tab_widget.addTab(tab4, "人工抓取分析結果1.色塊")
+        tab_widget.addTab(tab4, "人工抓取分析結果2.色塊")
 
         # 第五頁
         tab5 = QWidget()
@@ -113,7 +116,7 @@ class StartPage(QWidget, QtCore.QObject):
         self.tab_image5.setPixmap(QPixmap('res/k-means.png').scaled(1094, 576))
         layout_tab5.addWidget(self.tab_image5)
         tab4.setLayout(layout_tab5)
-        tab_widget.addTab(tab5, "人工抓取分析結果2.長條圖")
+        tab_widget.addTab(tab5, "人工抓取分析結果3.長條圖")
 
         main_layout = QVBoxLayout()
         main_layout.addLayout(layout)
@@ -266,6 +269,26 @@ class StartPage(QWidget, QtCore.QObject):
         new_pixmap1 = QPixmap.fromImage(qimage1)
         self.tab_image4.setPixmap(new_pixmap.scaled(864, 576))
         self.tab_image5.setPixmap(new_pixmap1.scaled(1094, 576))
+
+        # demo
+        self.times += 1
+        if(self.times == 1):
+            pixmap = QPixmap('res/delta_e_1.png')
+            scaled_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.image_f.setPixmap(scaled_pixmap)
+            #self.tab_image3.setPixmap(QPixmap('res/Water-Net.png'))
+            pixmap = QPixmap('res/Water-Net.png')
+            scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.tab_image3.setPixmap(scaled_pixmap)
+        elif(self.times == 2):
+            #self.image_f.setPixmap(QPixmap('res/delta_e_2.png').scaled(500,500))
+            pixmap = QPixmap('res/delta_e_2.png')
+            scaled_pixmap = pixmap.scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.image_f.setPixmap(scaled_pixmap)
+            #self.tab_image3.setPixmap(QPixmap('res/neural-colorization.png'))
+            pixmap = QPixmap('res/neural-colorization.png')
+            scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.tab_image3.setPixmap(scaled_pixmap)
 
     def image_show(self):
 
