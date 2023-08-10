@@ -538,7 +538,7 @@ class Video(QWidget, QtCore.QObject):
         self.video_label = QLabel(self)
 
         # Create buttons for opening and playing the video
-        self.open_button = QPushButton('Open Video', self)
+        self.open_button = QPushButton('Open Video (waterNet)', self)
         self.test_button = QPushButton('Test Video', self)
 
         # Set up the layout
