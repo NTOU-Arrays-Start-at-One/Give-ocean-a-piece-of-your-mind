@@ -297,30 +297,13 @@ def cc_task(cc_img, scale=0.5):
     # 創建圖表
     grid = plt.GridSpec(6, 6)
 
-    fig, axs = plt.subplots(2, 3, figsize=(12, 8))
-    axs[0, 0].set_title('k-means')
-    axs[0, 1].set_title('k-means_clean')
-    axs[0, 2].set_title('original')
-    for i in range(5):
-        for j in range(5):
-            if i == 4 and j == 4:
-                break
-            x = j*4
-            y = (5-i)*4
-            # 由於 k-means 分群的結果是隨機的
-            # 所以要將分群結果和色板的顏色進行比較
-            axs[0, 0].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb[i * 5 + j]) / 255))
-            axs[0, 1].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb_clean[i * 5 + j]) / 255))
-            axs[0, 2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
-    axs[0, 0].axis('scaled')
-    axs[0, 1].axis('scaled')
-    axs[0, 2].axis('scaled')
+    fig, axs = plt.subplots(1, 3, figsize=(24, 8))
 
     #------------------k-means------------------
     #------------------每一點的rgb值與色差------------------
-    axs[1, 0].set_title('k-means')
-    axs[1, 1].set_title('k-means_clean')
-    axs[1, 2].set_title('original')
+    axs[0].set_title('k-means')
+    axs[1].set_title('k-means_clean')
+    axs[2].set_title('original')
     for i in range(5):
         for j in range(5):
             if i == 4 and j == 4:
@@ -329,21 +312,21 @@ def cc_task(cc_img, scale=0.5):
             y = (5-i)*4
             # 由於 k-means 分群的結果是隨機的
             # 所以要將分群結果和色板的顏色進行比較
-            axs[1, 0].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb[i * 5 + j]) / 255))
-            axs[1, 1].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb_clean[i * 5 + j]) / 255))
-            axs[1, 2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
+            axs[0].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb[i * 5 + j]) / 255))
+            axs[1].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb_clean[i * 5 + j]) / 255))
+            axs[2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
             # 在方框中心位置添加 RGB 值文字
-            rgb_text = f"({round(center_rgb[i * 5 + j][0],1)},{round(center_rgb[i * 5 + j][1],1)},{round(center_rgb[i * 5 + j][2],1)})"
-            axs[1, 0].text(x + 2, y + 2, rgb_text, color='black', fontsize=6, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
+            axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
-            rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0],1)},{round(center_rgb_clean[i * 5 + j][1],1)},{round(center_rgb_clean[i * 5 + j][2],1)})"
-            axs[1, 1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=6, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},{round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
+            axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
-            rgb_text = f"({round(rgb_list[i * 5 + j][0],1)},{round(rgb_list[i * 5 + j][1],1)},{round(rgb_list[i * 5 + j][2],1)})"
-            axs[1, 2].text(x + 2, y + 2, rgb_text, color='black', fontsize=6, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
-    axs[1, 0].axis('scaled')
-    axs[1, 1].axis('scaled')
-    axs[1, 2].axis('scaled')
+            rgb_text = f"({round(rgb_list[i * 5 + j][0])},{round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
+            axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+    axs[0].axis('scaled')
+    axs[1].axis('scaled')
+    axs[2].axis('scaled')
 
     plt.tight_layout()
     plt.savefig('res/colorblock.png', dpi=300, bbox_inches='tight')
