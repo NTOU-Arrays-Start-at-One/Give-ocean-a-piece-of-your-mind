@@ -12,6 +12,12 @@ from imutils.perspective import four_point_transform
 import CC_IQA
 import subprocess
 
+# 設置環境變數
+from PyQt5.QtCore import QLibraryInfo
+os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = QLibraryInfo.location(
+    QLibraryInfo.PluginsPath
+)
+
 class StartPage(QWidget, QtCore.QObject):
     image_uploaded = QtCore.pyqtSignal(str)
 
@@ -531,6 +537,9 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
 
 
 class Video(QWidget, QtCore.QObject):
+    
+    
+
     def __init__(self):
         super().__init__()
 
