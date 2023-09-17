@@ -12,6 +12,12 @@ from imutils.perspective import four_point_transform
 import CC_IQA
 import subprocess
 
+# 設置環境變數
+from PyQt5.QtCore import QLibraryInfo
+os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = QLibraryInfo.location(
+    QLibraryInfo.PluginsPath
+)
+
 class StartPage(QWidget, QtCore.QObject):
     image_uploaded = QtCore.pyqtSignal(str)
 
@@ -531,6 +537,7 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
 
 
 class Video(QWidget, QtCore.QObject):
+    
     def __init__(self):
         super().__init__()
 
@@ -580,86 +587,84 @@ class Video(QWidget, QtCore.QObject):
         self.use_waterNet()
         self.video_show()
     
-    def test_video(self):
+    def video_show(self, cap1, cap2):
         # 讀取兩段影片
-        cap1 = cv2.VideoCapture('res/test_2.mp4')
-        cap2 = cv2.VideoCapture('res/test_1.mp4')
+        self.cap1 = cv2.VideoCapture(cap1)
+        self.cap2 = cv2.VideoCapture(cap2)
 
         # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
-        # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = 640
-        height = 360
-        fps = cap1.get(cv2.CAP_PROP_FPS)
+        self.width = 640
+        self.height = 360
+        self.fps = self.cap1.get(cv2.CAP_PROP_FPS)
 
         # 生成一條紅色的線
-        line_thickness = 2
-        line_length = int(width / 2)
-        line_color = (0, 0, 255) # BGR格式，此處為紅色
-        line_x = int(width / 2)
-        line_start = (line_x, 0)
-        line_end = (line_x, height)
+        self.line_thickness = 2
+        self.line_length = int(self.width / 2)
+        self.line_color = (0, 0, 255)  # BGR格式，此處為紅色
+        self.line_x = int(self.width / 2)
+        self.line_start = (self.line_x, 0)
+        self.line_end = (self.line_x, self.height)
 
-        # 生成一張空白的黑色圖片，大小與影片相同
-        merged_image = np.zeros((height, width, 3), dtype=np.uint8)
+        # 設定疊加影片的起始時間
+        self.start_time = 0
+        self.cap1.set(cv2.CAP_PROP_POS_MSEC, self.start_time)
+        self.cap2.set(cv2.CAP_PROP_POS_MSEC, self.start_time)
 
-        # 設置疊加影片的起始時間
-        start_time = 0
-        cap1.set(cv2.CAP_PROP_POS_MSEC, start_time)
-        cap2.set(cv2.CAP_PROP_POS_MSEC, start_time)
+        # 創建一張空白的黑色圖片，大小與影片相同
+        self.merged_image = np.zeros((self.height, self.width, 3), dtype=np.uint8)
 
-        # 顯示疊加後的影片
-        while True:
-            # 讀取兩個影格
-            ret1, frame1 = cap1.read()
-            ret2, frame2 = cap2.read()
+        # 設定更新影片畫面的計時器
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(int(1000 / self.fps))  # 根據幀率設定更新間隔
 
-            # 若其中一個影片已讀取完畢，則退出迴圈
-            if not ret1 or not ret2:
-                break
-            
-            # 調整影格大小
-            frame1 = cv2.resize(frame1, (width, height))
-            frame2 = cv2.resize(frame2, (width, height))
+        # 設置滑鼠事件的回調函數
+        self.video_label.setMouseTracking(True)
+        self.video_label.mouseMoveEvent = self.on_mouse_move
+        
+    def test_video(self):
+        self.video_show('res/test_2.mp4', 'res/test_1.mp4')
 
-            # 顯示疊加後的圖片
-            cv2.imshow("Merged Image", merged_image)
+    def update_frame(self):
+        # 讀取兩個影格
+        ret1, frame1 = self.cap1.read()
+        ret2, frame2 = self.cap2.read()
 
-            def on_mouse(event, x, y, flags, param):
-                nonlocal line_x, line_start, line_end, merged_image, frame1, frame2
-                if event == cv2.EVENT_MOUSEMOVE:
-                    line_x = x
-                    # 更新線的位置
-                    line_start = (line_x, 0)
-                    line_end = (line_x, height)
+        # 若其中一個影片已讀取完畢，則退出迴圈
+        if not ret1 or not ret2:
+            self.cap1.release()
+            self.cap2.release()
+            self.timer.stop()
+            return
 
-                    # 將img1與img2分別放在空白圖片的左半邊與右半邊
-                    merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
-                    merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
+        # 調整影格大小
+        frame1 = cv2.resize(frame1, (self.width, self.height))
+        frame2 = cv2.resize(frame2, (self.width, self.height))
 
-                    # 畫線
-                    cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
+        # 更新疊加後的圖片
+        self.update_merged_image(frame1, frame2)
 
-                    # 顯示更新後的圖片
-                    cv2.imshow("Merged Image", merged_image)
+    def update_merged_image(self, frame1, frame2):
+        # 將frame1與frame2分別放在空白圖片的左半邊與右半邊
+        line_end = int(self.line_x)
+        self.merged_image[:, :line_end, :] = frame1[:, :line_end, :]
+        self.merged_image[:, line_end:, :] = frame2[:, line_end:, :]
 
-            # 將img1與img2分別放在空白圖片的左半邊與右半邊
-            merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
-            merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
-            # 畫線
-            cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
-            
-            # 顯示更新後的圖片
-            cv2.imshow("Merged Image", merged_image)
+        # 畫線
+        self.line_start = (self.line_x, 0)
+        self.line_end = (self.line_x, self.height)
+        
+        cv2.line(self.merged_image, self.line_start, self.line_end, self.line_color, thickness=self.line_thickness)
 
-            # 設置滑鼠事件的回調函數
-            cv2.setMouseCallback("Merged Image", on_mouse)
-            # 按下ESC鍵退出
-            k = cv2.waitKey(int(500//fps))
-            if k == 27: # Esc
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-                break
+        # 將OpenCV圖像轉換為QImage並更新到QLabel
+        merged_image_rgb = cv2.cvtColor(self.merged_image, cv2.COLOR_BGR2RGB)
+        q_image = QImage(merged_image_rgb.data, self.width, self.height, self.width * 3, QImage.Format_RGB888)
+        self.video_label.setPixmap(QPixmap.fromImage(q_image))
+
+    def on_mouse_move(self, event):
+        # 取得滑鼠位置
+        mouse_pos = event.pos()
+        self.line_x = mouse_pos.x()
 
     def use_waterNet(self):
         def call_inference(): # inference.py (WaterNet)
@@ -687,97 +692,12 @@ class Video(QWidget, QtCore.QObject):
             self.videoShow2_path = 'res/waterNet.mp4'
             self.videoShow2 = cv2.imread(self.videoShow2_path)
             # 顯示對比畫面
-            self.video_show()
+            self.video_show(self.videoShow_path, self.videoShow2_path)
 
         except Exception as e:
             print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
             print(e)
             return
-        
-    def video_show(self):
-        # 讀取兩段影片
-        # cap1 = cv2.VideoCapture('video1.mp4')
-        # cap2 = cv2.VideoCapture('video2.mp4')
-        cap1 = cv2.VideoCapture(self.videoShow_path)
-        cap2 = cv2.VideoCapture(self.videoShow2_path)
-        print(self.videoShow_path)
-        print(self.videoShow2_path)
-
-        # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
-        # width  = int(cap1.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # height = int(cap1.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = 640
-        height = 360
-        fps = cap1.get(cv2.CAP_PROP_FPS)
-
-        # 生成一條紅色的線
-        line_thickness = 2
-        line_length = int(width / 2)
-        line_color = (0, 0, 255) # BGR格式，此處為紅色
-        line_x = int(width / 2)
-        line_start = (line_x, 0)
-        line_end = (line_x, height)
-
-        # 生成一張空白的黑色圖片，大小與影片相同
-        merged_image = np.zeros((height, width, 3), dtype=np.uint8)
-
-        # 設置疊加影片的起始時間
-        start_time = 0
-        cap1.set(cv2.CAP_PROP_POS_MSEC, start_time)
-        cap2.set(cv2.CAP_PROP_POS_MSEC, start_time)
-
-        # 顯示疊加後的影片
-        while True:
-            # 讀取兩個影格
-            ret1, frame1 = cap1.read()
-            ret2, frame2 = cap2.read()
-
-            # 若其中一個影片已讀取完畢，則退出迴圈
-            if not ret1 or not ret2:
-                break
-            
-            # 調整影格大小
-            frame1 = cv2.resize(frame1, (width, height))
-            frame2 = cv2.resize(frame2, (width, height))
-
-            # 顯示疊加後的圖片
-            cv2.imshow("Merged Image", merged_image)
-
-            def on_mouse(event, x, y, flags, param):
-                nonlocal line_x, line_start, line_end, merged_image, frame1, frame2
-                if event == cv2.EVENT_MOUSEMOVE:
-                    line_x = x
-                    # 更新線的位置
-                    line_start = (line_x, 0)
-                    line_end = (line_x, height)
-
-                    # 將img1與img2分別放在空白圖片的左半邊與右半邊
-                    merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
-                    merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
-
-                    # 畫線
-                    cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
-
-                    # 顯示更新後的圖片
-                    cv2.imshow("Merged Image", merged_image)
-
-            # 將img1與img2分別放在空白圖片的左半邊與右半邊
-            merged_image[:, :line_end[0], :] = frame1[:, :line_end[0], :]
-            merged_image[:, line_end[0]:, :] = frame2[:, line_end[0]:, :]
-            # 畫線
-            cv2.line(merged_image, line_start, line_end, line_color, thickness=line_thickness)
-            
-            # 顯示更新後的圖片
-            cv2.imshow("Merged Image", merged_image)
-
-            # 設置滑鼠事件的回調函數
-            cv2.setMouseCallback("Merged Image", on_mouse)
-            # 按下ESC鍵退出
-            k = cv2.waitKey(int(500//fps))
-            if k == 27: # Esc
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-                break
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
