@@ -189,10 +189,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Color Chart Difference by UAC"))
-        self.label_1.setFont(QtGui.QFont("Roman times", 12, QtGui.QFont.Bold))
+        self.label_1.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_1.setText(_translate("MainWindow", "step1: Choose image; "
                                                     "Select the color chart area by clicking four points on the image."))
-        self.label_2.setFont(QtGui.QFont("Roman times", 12, QtGui.QFont.Bold))
+        self.label_2.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_2.setText(_translate("MainWindow", "step2: Crop the color chart area (rotate the image if "
                                                     "necessary to \nmatch the standard color chart)."))
         self.PB_4points.setText(_translate("MainWindow", "confirm"))
@@ -202,12 +202,12 @@ class Ui_MainWindow(object):
         self.PB_ok.setText(_translate("MainWindow", "ok"))
         self.PB_ok_2.setText(_translate("MainWindow", "Calculate and return points"))
         self.label_E.setText(_translate("MainWindow", "mean E: "))
-        self.label_3.setFont(QtGui.QFont("Roman times", 12, QtGui.QFont.Bold))
+        self.label_3.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_3.setText(_translate("MainWindow", "step3: Calculate the difference "
                                                     "(adjust the block scale if necessary)."))
         self.label_C.setText(_translate("MainWindow", "mean C: "))
         self.label_scale.setText(_translate("MainWindow", "block scale"))
-        self.label_std.setFont(QtGui.QFont("Roman times", 12, QtGui.QFont.Bold))
+        self.label_std.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_std.setText(_translate("MainWindow", "standard color chart"))
         try:
             cpath = os.path.abspath(__file__)
