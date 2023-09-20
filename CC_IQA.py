@@ -1,9 +1,13 @@
 import cv2
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from scipy.spatial import distance
 from colormath.color_diff import delta_e_cie2000
+from ColorAnalysis import cba  # cba: ColorBlock Analysis
+from ColorAnalysis import fileio as fio # to save file
+from ColorAnalysis import GUI # GUI: Graphical User Interface to show image
 
 ####  The data from https://www.xrite.com/service-support/new_color_specifications_for_colorchecker_sg_and_classic_charts
 CIE_lab_24 = [[37.54, 14.37, 14.92], [64.66, 19.27, 17.5], [49.32, -3.82, -22.54], [43.46, -12.74, 22.72], [54.94, 9.61, -24.79], [70.48, -32.26, -0.37],
@@ -244,9 +248,10 @@ def cc_task(cc_img, scale=0.5):
         rb = (int(c_w + (w_block / 2) * scale), int(c_h + (h_block / 2) * scale))
 
         img_rect_ = draw_rect(img_rect_, lt, rb)
-        print("lt, rb", lt, rb)
+        # print("lt, rb", lt, rb)
         cc_block = img_rect[lt[1]: rb[1], lt[0]: rb[0]]
-        print("cc_block", cc_block)
+        # print("cc_block", cc_block)
+
         cc_block_clean = cc_block.copy()
         cc_block_clean = remove_outliers(cc_block_clean, 1)
         R_mean = np.mean(cc_block[:, :, 0])
@@ -259,6 +264,8 @@ def cc_task(cc_img, scale=0.5):
         RGB_m = [R_mean, G_mean, B_mean]
         RGB_m_clean = [R_mean_clean, G_mean_clean, B_mean_clean]
         center_rgb.append(RGB_m)
+        #[[r,g,b]*24個]
+        
         center_rgb_clean.append(RGB_m_clean)
         rgb_rgbc_cmp.append(calculate_delta_e(RGB_m, RGB_m_clean))
         rgb_std_cmp.append(calculate_delta_e(RGB_m, rgb_list[count]))
@@ -274,6 +281,42 @@ def cc_task(cc_img, scale=0.5):
         mean_E += E
 
         count += 1
+    
+    #------------------cie_2000------------------
+    #------- 色差比較圖 -------#
+    center_rgb_temp = center_rgb.copy()
+    center_rgb_temp.append([0,0,0]) # 25個
+    # 改成5x5x3陣列
+    center_rgb_2d = np.array(center_rgb_temp).reshape(5,5,3)
+    # print(center_rgb_2d)
+    rgb_list_float = np.array(rgb_list).reshape(5,5,3)
+    # print(rgb_list_float)
+    delta_e = cba.compare_colorboard(rgb_list_float, center_rgb_2d)
+    plt.savefig(os.path.join('res', "delta_e.png")) # 儲存色差比較圖
+    # fio.save_image_file('delta_e', 'res') # 如果要把所有生成的色差比較圖都留下，就用這個
+    
+    #------- 色差直方圖 -------#
+    delta_e = np.array(delta_e)
+    delta_e_mean = np.mean(delta_e[0:24]) # 去掉最後一個標記色塊
+    # 繪製直方圖
+    x = np.arange(0, 25)
+    labels = [f"({i//5},{i%5})" for i in range(25)] 
+    fig, ax = plt.subplots(figsize=(14, 6))
+    ax.bar(x, delta_e.reshape(25), width=0.4, label='delta_e: restored_model')
+    # 繪製平均值
+    ax.axhline(delta_e_mean, color='r', linestyle='--', label='delta_e mean')
+    ax.text(24.6, delta_e_mean, f"{delta_e_mean:.2f}", ha='right', va='bottom')
+    # 設定圖表屬性
+    ax.set_xticks(x+0.4/2)
+    ax.set_xticklabels(labels)
+    ax.legend()
+    ax.set_title('Histogram of delta_e')
+    ax.set_xlabel('(i,j)')
+    ax.set_ylabel('Value')
+    plt.savefig(os.path.join('res', 'Histogram of delta_e')) # 儲存色差直方圖
+    # fio.save_image_file('Histogram of delta_e', result_dir) # 如果要把所有生成的色差直方圖都留下，就用這個
+    #------------------cie_2000------------------
+
     
     # 由於中心點的 RGB 值會受到環境光影響
     # 所以我們需要將 RGB 值濾掉離群值
