@@ -57,11 +57,12 @@ class StartPage(QWidget, QtCore.QObject):
         # 副圖片
         self.image_f = QLabel(self)
         self.image_f.setPixmap(QPixmap('Standard.png').scaled(400,400))
+        self.image_g = QLabel(self)
 
         # 版面配置
         layout = QHBoxLayout()
         layout_left = QVBoxLayout()
-        layout_right = QVBoxLayout()
+        layout_right = QHBoxLayout()
 
         layout_left.addWidget(self.image_e)
 
@@ -74,8 +75,9 @@ class StartPage(QWidget, QtCore.QObject):
         layout_button.addWidget(button_e)
         layout_left.addLayout(layout_button)
 
-        layout_right.addStretch()
         layout_right.addWidget(self.image_f)
+        layout_right.addWidget(self.image_g)
+        layout_right.addStretch()
 
         layout.addLayout(layout_left)
         layout.addLayout(layout_right)
@@ -343,25 +345,12 @@ class StartPage(QWidget, QtCore.QObject):
         self.tab_image4.setPixmap(scaled_pixmap)
         self.tab_image5.setPixmap(scaled_pixmap1)
 
-        # demo
-        self.times += 1
-        if(self.times == 1):
-            pixmap = QPixmap('res/delta_e_1.png')
-            scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.image_f.setPixmap(scaled_pixmap)
-            #self.tab_image3.setPixmap(QPixmap('res/Water-Net.png'))
-            pixmap = QPixmap('res/Water-Net.png')
-            scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.tab_image3.setPixmap(scaled_pixmap)
-        elif(self.times == 2):
-            #self.image_f.setPixmap(QPixmap('res/delta_e_2.png').scaled(500,500))
-            pixmap = QPixmap('res/delta_e_2.png')
-            scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.image_f.setPixmap(scaled_pixmap)
-            #self.tab_image3.setPixmap(QPixmap('res/neural-colorization.png'))
-            pixmap = QPixmap('res/neural-colorization.png')
-            scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.tab_image3.setPixmap(scaled_pixmap)
+        pixmap = QPixmap('res/delta_e.png')
+        scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.image_g.setPixmap(scaled_pixmap)
+        pixmap = QPixmap('res/Histogram of delta_e.png')
+        scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.tab_image3.setPixmap(scaled_pixmap)
 
     def image_show(self):
 
