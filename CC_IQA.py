@@ -89,24 +89,71 @@ def load_std_ref_LAB(c_type):
     else:
         assert True, "type error"
 
-def calculate_delta_e(color1, color2):
-    # 將 RGB 轉換為 Lab 色彩空間
-    lab_color1 = rgb_to_lab(color1)
-    lab_color2 = rgb_to_lab(color2)
-    
-    # 計算 Delta E
-    delta_e = distance.euclidean(lab_color1, lab_color2)
-    
-    return delta_e
+# 定義 delta_e_ciede2000 函數，用於計算 CIEDE-2000 色差
+def delta_e_ciede2000(Lab1, Lab2, kL=1, kC=1, kH=1):
+    L1, a1, b1 = Lab1
+    L2, a2, b2 = Lab2
 
-def rgb_to_lab(rgb_color):
-    # 將 RGB 色彩空間轉換為 XYZ 色彩空間
-    xyz_color = rgb_to_xyz(rgb_color)
-    
-    # 將 XYZ 色彩空間轉換為 Lab 色彩空間
-    lab_color = xyz_to_lab(xyz_color)
-    
-    return lab_color
+    def deg_to_rad(deg):
+        return np.radians(deg)
+
+    def rad_to_deg(rad):
+        return np.degrees(rad)
+
+    # 計算 CIEDE-2000 中的各個參數
+    L_bar = (L1 + L2) / 2
+    C1 = np.sqrt(a1**2 + b1**2)
+    C2 = np.sqrt(a2**2 + b2**2)
+    C_bar = (C1 + C2) / 2
+
+    G = 0.5 * (1 - np.sqrt(C_bar**7 / (C_bar**7 + 25**7)))
+
+    a1_prime = (1 + G) * a1
+    a2_prime = (1 + G) * a2
+
+    C1_prime = np.sqrt(a1_prime**2 + b1**2)
+    C2_prime = np.sqrt(a2_prime**2 + b2**2)
+
+    h1_prime = rad_to_deg(np.arctan2(b1, a1_prime))
+    if h1_prime < 0:
+        h1_prime += 360
+
+    h2_prime = rad_to_deg(np.arctan2(b2, a2_prime))
+    if h2_prime < 0:
+        h2_prime += 360
+
+    Delta_L_prime = L2 - L1
+    Delta_C_prime = C2_prime - C1_prime
+
+    h_diff = h2_prime - h1_prime
+    if abs(h_diff) <= 180:
+        Delta_H_prime = h2_prime - h1_prime
+    elif h_diff > 180:
+        Delta_H_prime = h2_prime - h1_prime - 360
+    else:
+        Delta_H_prime = h2_prime - h1_prime + 360
+
+    Delta_H_prime = 2 * np.sqrt(C1_prime * C2_prime) * np.sin(deg_to_rad(Delta_H_prime) / 2)
+
+    L_bar_prime = (L1 + L2) / 2
+    C_bar_prime = (C1_prime + C2_prime) / 2
+
+    h_bar_prime = (h1_prime + h2_prime) / 2
+    if abs(h1_prime - h2_prime) > 180:
+        h_bar_prime += 180
+
+    T = 1 - 0.17 * np.cos(deg_to_rad(h_bar_prime - 30)) + 0.24 * np.cos(deg_to_rad(2 * h_bar_prime))
+    S = 1 + 0.045 * C_bar_prime
+    R = 2 * np.sqrt(C_bar_prime**7 / (C_bar_prime**7 + 25**7))
+
+    Delta_L_term = Delta_L_prime / (kL * S)
+    Delta_C_term = Delta_C_prime / (kC * S)
+    Delta_H_term = Delta_H_prime / (kH * S)
+
+    Delta_E = np.sqrt(Delta_L_term**2 + Delta_C_term**2 + Delta_H_term**2 + R * Delta_C_term * Delta_H_term)
+
+    return Delta_E
+
 
 def rgb_to_xyz(rgb_color):
     # 將 RGB 轉換為 XYZ 色彩空間的矩陣
@@ -267,9 +314,9 @@ def cc_task(cc_img, scale=0.5):
         #[[r,g,b]*24個]
         
         center_rgb_clean.append(RGB_m_clean)
-        rgb_rgbc_cmp.append(calculate_delta_e(RGB_m, RGB_m_clean))
-        rgb_std_cmp.append(calculate_delta_e(RGB_m, rgb_list[count]))
-        rgbc_std_cmp.append(calculate_delta_e(RGB_m_clean, rgb_list[count]))
+        rgb_rgbc_cmp.append(delta_e_ciede2000(RGB_m, RGB_m_clean))
+        rgb_std_cmp.append(delta_e_ciede2000(RGB_m, rgb_list[count]))
+        rgbc_std_cmp.append(delta_e_ciede2000(RGB_m_clean, rgb_list[count]))
         # LAB_m: 中心點 LAB 值
         LAB_m = rgb2lab(RGB_m)
         #print(f"count: {count}")
