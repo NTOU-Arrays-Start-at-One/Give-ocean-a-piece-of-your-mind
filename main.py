@@ -1,16 +1,18 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget
 from CC_ui import Ui_MainWindow
+from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtGui import QImage, QPixmap, QMovie
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
 import PyQt5.QtCore as QtCore
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 import cv2
 import numpy as np
 import os
 from imutils.perspective import four_point_transform
 import CC_IQA
 import subprocess
+from ultralytics import YOLO
+from PIL import Image
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo
@@ -26,6 +28,8 @@ class StartPage(QWidget, QtCore.QObject):
         #demo
         self.times = 0
 
+        # YOLO v8 model
+        self.yoloModel = YOLO("detection/best.pt")
         # 設置物件
         # 主圖片
         self.image_e = QLabel(self)
@@ -106,29 +110,38 @@ class StartPage(QWidget, QtCore.QObject):
         # 第三頁
         tab3 = QWidget()
         layout_tab3 = QHBoxLayout()
+        scroll_area_tab3 = QScrollArea()
         self.tab_image3 = QLabel(tab3)
         self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
         layout_tab3.addWidget(self.tab_image3)
         tab3.setLayout(layout_tab3)
-        tab_widget.addTab(tab3, "人工抓取分析結果1.Delta E")
+        scroll_area_tab3.setWidget(tab4)
+        scroll_area_tab3.setAlignment(Qt.AlignCenter)
+        tab_widget.addTab(scroll_area_tab3, "人工抓取分析結果1.Delta E")
 
         # 第四頁
         tab4 = QWidget()
         layout_tab4 = QHBoxLayout()
+        scroll_area_tab4 = QScrollArea()
         self.tab_image4 = QLabel(tab4)
         self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(1600, 520))
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
-        tab_widget.addTab(tab4, "人工抓取分析結果2.色塊")
+        scroll_area_tab4.setWidget(tab4)
+        scroll_area_tab4.setAlignment(Qt.AlignCenter)
+        tab_widget.addTab(scroll_area_tab4, "人工抓取分析結果2.色塊")
 
         # 第五頁
         tab5 = QWidget()
         layout_tab5 = QHBoxLayout()
+        scroll_area_tab5 = QScrollArea()
         self.tab_image5 = QLabel(tab5)
         self.tab_image5.setPixmap(QPixmap('res/k-means.png').scaled(1094, 576))
         layout_tab5.addWidget(self.tab_image5)
-        tab4.setLayout(layout_tab5)
-        tab_widget.addTab(tab5, "人工抓取分析結果3.長條圖")
+        tab5.setLayout(layout_tab5)
+        scroll_area_tab5.setWidget(tab5)
+        scroll_area_tab5.setAlignment(Qt.AlignCenter)
+        tab_widget.addTab(scroll_area_tab5, "人工抓取分析結果3.長條圖")
 
         main_layout = QVBoxLayout()
         main_layout.addLayout(layout)
@@ -157,9 +170,9 @@ class StartPage(QWidget, QtCore.QObject):
 
             #使用subprocess.call()來呼叫inference.py程式
             subprocess.call([
-               "python3", inference_path,
-               "--source", source_path,
-               "--weights", weights_path,
+                "python", inference_path,
+                "--source", source_path,
+                "--weights", weights_path,
                 "--output", output_path,
             ])
         try:
@@ -192,15 +205,16 @@ class StartPage(QWidget, QtCore.QObject):
         def call_colorization():
             # 設定參數
             colorization_path = os.path.expanduser("neural-colorization/colorize.py")
+            
             source_path = os.path.expanduser(self.img_path)
             weights_path = os.path.expanduser("neural-colorization/G.pth")
             output_path = os.path.expanduser("res/colorization.jpg")
 
             #使用subprocess.call()來呼叫colorization.py程式
             subprocess.call([
-               "python3", colorization_path,
-               "-i", source_path,
-               "-m", weights_path,
+                "python3", colorization_path,
+                "-i", source_path,
+                "-m", weights_path,
                 "-o", output_path,
                 "--gpu", "-1",
             ])
@@ -223,61 +237,35 @@ class StartPage(QWidget, QtCore.QObject):
             return
     
     def use_detection(self):
-        
-        def call_detection():
-            # 設定參數
-            source_path = os.path.expanduser(self.img_path)
-            weights_path = os.path.expanduser("detection/best.pt")
-
-            #使用subprocess.call()來呼叫colorization.py程式
-            subprocess.call([
-               "yolo",
-               "detect",
-               "predict",
-               f"model={weights_path}",
-               f"source={source_path}",
-               "save=true",
-            ])
-        def get_max_number_subfolder(directory):
-            if not os.path.isdir(directory):
-                raise ValueError("path is not dir")
-            subfolders = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
-            max_number = -1
-            max_number_subfolder = None
-            for subfolder in subfolders:
-                if subfolder.startswith("predict") and subfolder[7:].isdigit():
-                    current_number = int(subfolder[7:])
-                    if current_number > max_number:
-                        max_number = current_number
-                        max_number_subfolder = subfolder
-            if not max_number_subfolder:
-                raise ValueError("指定的資料夾中沒有符合條件的子資料夾")
-            return os.path.join(directory, max_number_subfolder)
-        def get_single_image_path(directory):
-            if not os.path.isdir(directory):
-                raise ValueError("指定的路徑不是資料夾")
-            image_files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-            if len(image_files) != 1:
-                raise ValueError("指定的資料夾中應該只有一個影像檔")
-            return os.path.join(directory, image_files[0])
+        # 設定參數
+        left_source_path:str = os.path.expanduser(self.img_path)
         try:
-            if self.firstTime_Colorization == True and self.img_path != None:
+            if self.img_path != None:
                 # lazy loaging
                 # 並設置大小
                 self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
-                # 運行yolo
-                call_detection()
+                if self.imgShow2_path != '':
+                    right_source_path:str = os.path.expanduser(self.imgShow2_path)
+                    results = self.yoloModel([left_source_path, right_source_path])
+                else:
+                    results = self.yoloModel(left_source_path)
+
+                img_left_array = results[0].plot()
+                img_left = Image.fromarray(img_left_array)
+                img_left = img_left.resize((self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                self.imgShow1 = np.array(img_left)
+                if self.imgShow2_path != '':
+                    img_right_array = results[1].plot()
+                    img_right = Image.fromarray(img_right_array)
+                    img_right = img_right.resize((self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                    self.imgShow2 = np.array(img_right)
                 self.firstTime_Detection = False
-            folder_path = "runs/detect"
-            result_path = get_max_number_subfolder(folder_path)
-            image_path = get_single_image_path(result_path)
-            self.imgShow2_path = image_path
-            self.imgShow2 = cv2.imread(self.imgShow2_path)
+
             self.image_show()
         except Exception as e:
-            print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
+            print("Error: 請先上傳圖片或是物件偵測運行有錯誤，錯誤訊息如下：")
             print(e)
             return
 
@@ -303,6 +291,8 @@ class StartPage(QWidget, QtCore.QObject):
             self.firstTime_Colorization = True
             self.firstTime_Detection = True
             self.imgShow2_path = ''
+            # 重置滑鼠追蹤事件
+            self.image_e.setMouseTracking(False)
 
     def open_Analyze(self):
         try:
@@ -353,10 +343,9 @@ class StartPage(QWidget, QtCore.QObject):
         self.tab_image3.setPixmap(scaled_pixmap)
 
     def image_show(self):
-
         self.imgShow2 = cv2.resize(
             self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
-
+        
         # 生成一條紅色的線
         height, width, channels = self.imgShow1.shape
         line_thickness = 2
@@ -532,6 +521,7 @@ class Video(QWidget, QtCore.QObject):
 
         # Create a QLabel to display the video frames
         self.video_label = QLabel(self)
+        self.video_label.setFixedSize(640, 480)
 
         # Create buttons for opening and playing the video
         self.open_button = QPushButton('Open Video (waterNet)', self)
