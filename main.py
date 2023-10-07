@@ -33,6 +33,7 @@ class StartPage(QWidget, QtCore.QObject):
         # 設置物件
         # 主圖片
         self.image_e = QLabel(self)
+        self.image_e.setFixedSize(801, 453)
         
         # self.imgShow1 原圖片
         # self.imgShow2 被還原的圖片
@@ -47,7 +48,7 @@ class StartPage(QWidget, QtCore.QObject):
         self.firstTime_Detection = True
 
         # 示範區塊大小
-        self.DEMO_SIZE = (700, 394)
+        self.DEMO_SIZE = (801, 453)
         self.MAIN_SIZE = (1900, 1060)
 
         # 指令與切換按鈕a, b, c, d
@@ -60,7 +61,7 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 副圖片
         self.image_f = QLabel(self)
-        self.image_f.setPixmap(QPixmap('Standard.png').scaled(400,400))
+        self.image_f.setPixmap(QPixmap('Standard.png').scaled(450,450))
         self.image_g = QLabel(self)
 
         # 版面配置
@@ -88,6 +89,7 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 頁籤
         tab_widget = QTabWidget()
+        tab_widget.setFixedSize(1875, 500)
 
         # # 第一頁
         # tab1 = QWidget()
@@ -115,7 +117,7 @@ class StartPage(QWidget, QtCore.QObject):
         self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
         layout_tab3.addWidget(self.tab_image3)
         tab3.setLayout(layout_tab3)
-        scroll_area_tab3.setWidget(tab4)
+        scroll_area_tab3.setWidget(tab3)
         scroll_area_tab3.setAlignment(Qt.AlignCenter)
         tab_widget.addTab(scroll_area_tab3, "人工抓取分析結果1.Delta E")
 
@@ -124,7 +126,7 @@ class StartPage(QWidget, QtCore.QObject):
         layout_tab4 = QHBoxLayout()
         scroll_area_tab4 = QScrollArea()
         self.tab_image4 = QLabel(tab4)
-        self.tab_image4.setPixmap(QPixmap('res/colorblock.png').scaled(1600, 520))
+        self.tab_image4.setPixmap(QPixmap('res/Figure_3.png'))
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
         scroll_area_tab4.setWidget(tab4)
@@ -136,7 +138,7 @@ class StartPage(QWidget, QtCore.QObject):
         layout_tab5 = QHBoxLayout()
         scroll_area_tab5 = QScrollArea()
         self.tab_image5 = QLabel(tab5)
-        self.tab_image5.setPixmap(QPixmap('res/k-means.png').scaled(1094, 576))
+        self.tab_image5.setPixmap(QPixmap('res/Figure_3.png'))
         layout_tab5.addWidget(self.tab_image5)
         tab5.setLayout(layout_tab5)
         scroll_area_tab5.setWidget(tab5)
@@ -317,23 +319,23 @@ class StartPage(QWidget, QtCore.QObject):
             print(e)
     
     def update_image(self):
-        # 在圖片內容更改後，獲取新的圖片
-        new_image = cv2.imread('res/colorblock.png')
-        new_image1 = cv2.imread('res/k-means.png')
-        # 將 OpenCV 的圖片轉換為 QImage
-        height, width, _ = new_image.shape
-        height1, width1, _ = new_image1.shape
-        bytes_per_line = 3 * width
-        bytes_per_line1 = 3 * width1
-        qimage = QImage(new_image.data, width, height, bytes_per_line, QImage.Format_BGR888)
-        qimage1 = QImage(new_image1.data, width1, height1, bytes_per_line1, QImage.Format_BGR888)
-        # 將 QImage 轉換為 QPixmap
-        new_pixmap = QPixmap.fromImage(qimage)
-        new_pixmap1 = QPixmap.fromImage(qimage1)
-        scaled_pixmap = new_pixmap.scaled(1600, 520, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        scaled_pixmap1 = new_pixmap1.scaled(1094, 576, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.tab_image4.setPixmap(scaled_pixmap)
-        self.tab_image5.setPixmap(scaled_pixmap1)
+        # # 在圖片內容更改後，獲取新的圖片
+        # new_image = cv2.imread('res/colorblock.png')
+        # new_image1 = cv2.imread('res/k-means.png')
+        # # 將 OpenCV 的圖片轉換為 QImage
+        # height, width, _ = new_image.shape
+        # height1, width1, _ = new_image1.shape
+        # bytes_per_line = 3 * width
+        # bytes_per_line1 = 3 * width1
+        # qimage = QImage(new_image.data, width, height, bytes_per_line, QImage.Format_BGR888)
+        # qimage1 = QImage(new_image1.data, width1, height1, bytes_per_line1, QImage.Format_BGR888)
+        # # 將 QImage 轉換為 QPixmap
+        # new_pixmap = QPixmap.fromImage(qimage)
+        # new_pixmap1 = QPixmap.fromImage(qimage1)
+        # scaled_pixmap = new_pixmap.scaled(1443, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # scaled_pixmap1 = new_pixmap1.scaled(892, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # self.tab_image4.setPixmap(scaled_pixmap)
+        # self.tab_image5.setPixmap(scaled_pixmap1)
 
         pixmap = QPixmap('res/delta_e.png')
         scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -341,6 +343,15 @@ class StartPage(QWidget, QtCore.QObject):
         pixmap = QPixmap('res/Histogram of delta_e.png')
         scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.tab_image3.setPixmap(scaled_pixmap)
+        pixmap = QPixmap('res/colorblock.png')
+        scaled_pixmap = pixmap.scaled(1443, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.tab_image4.setPixmap(scaled_pixmap)
+        pixmap = QPixmap('res/k-means.png')
+        scaled_pixmap = pixmap.scaled(892, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.tab_image5.setPixmap(scaled_pixmap)
+
+        # 立即更新畫面
+        QApplication.processEvents()
 
     def image_show(self):
         self.imgShow2 = cv2.resize(

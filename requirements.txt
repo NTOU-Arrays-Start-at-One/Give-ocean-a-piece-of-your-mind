@@ -2,10 +2,14 @@ numpy
 opencv-python==4.7.0.72
 opencv-python-headless==4.7.0.72
 tqdm
-PyQt5==5.15.9
+PyQt5<=5.15.9
 imutils
 matplotlib
 scikit-learn
 scikit-image
 colormath
 pandas
+matplotlib
+scipy
+ultralytics
+Pillow
