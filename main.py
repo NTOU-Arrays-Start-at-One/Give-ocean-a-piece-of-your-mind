@@ -13,6 +13,9 @@ import CC_IQA
 import subprocess
 from ultralytics import YOLO
 from PIL import Image
+from VideoRecover import Video
+from AnalyzeDisplay import ColorBoardCanvas
+from AnalyzeDisplay import ColorBoardDeltaECanvas
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo
@@ -91,24 +94,6 @@ class StartPage(QWidget, QtCore.QObject):
         tab_widget = QTabWidget()
         tab_widget.setFixedSize(1875, 500)
 
-        # # 第一頁
-        # tab1 = QWidget()
-        # layout_tab1 = QHBoxLayout()
-        # self.tab_image1 = QLabel(tab1)
-        # self.tab_image1.setPixmap(QPixmap('res/Figure_1.png'))
-        # layout_tab1.addWidget(self.tab_image1)
-        # tab1.setLayout(layout_tab1)
-        # tab_widget.addTab(tab1, "Tab 1")
-
-        # # 第二頁
-        # tab2 = QWidget()
-        # layout_tab2 = QHBoxLayout()
-        # self.tab_image2 = QLabel(tab2)
-        # self.tab_image2.setPixmap(QPixmap('res/Figure_2.png'))
-        # layout_tab2.addWidget(self.tab_image2)
-        # tab2.setLayout(layout_tab2)
-        # tab_widget.addTab(tab2, "Tab 2")
-
         # 第三頁
         tab3 = QWidget()
         layout_tab3 = QHBoxLayout()
@@ -125,8 +110,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab4 = QWidget()
         layout_tab4 = QHBoxLayout()
         scroll_area_tab4 = QScrollArea()
-        self.tab_image4 = QLabel(tab4)
-        self.tab_image4.setPixmap(QPixmap('res/Figure_3.png'))
+        self.tab_image4 = ColorBoardCanvas(tab4, width=17, height=5, dpi=100)
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
         scroll_area_tab4.setWidget(tab4)
@@ -137,8 +121,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab5 = QWidget()
         layout_tab5 = QHBoxLayout()
         scroll_area_tab5 = QScrollArea()
-        self.tab_image5 = QLabel(tab5)
-        self.tab_image5.setPixmap(QPixmap('res/Figure_3.png'))
+        self.tab_image5 = ColorBoardDeltaECanvas(tab5, width=17, height=5, dpi=100)
         layout_tab5.addWidget(self.tab_image5)
         tab5.setLayout(layout_tab5)
         scroll_area_tab5.setWidget(tab5)
@@ -303,7 +286,7 @@ class StartPage(QWidget, QtCore.QObject):
                 self.image_uploaded.emit(self.img_path)
             else:
                 self.image_uploaded.emit(self.imgShow2_path)
-            self.analyze_page.returnPoints.connect(self.get_return_points)  # 連接信號和槽
+            self.analyze_page.returnAnalyze.connect(self.get_return_data)  # 連接信號和槽
             self.analyze_page.show()
 
         except Exception as e:
@@ -319,37 +302,12 @@ class StartPage(QWidget, QtCore.QObject):
             print(e)
     
     def update_image(self):
-        # # 在圖片內容更改後，獲取新的圖片
-        # new_image = cv2.imread('res/colorblock.png')
-        # new_image1 = cv2.imread('res/k-means.png')
-        # # 將 OpenCV 的圖片轉換為 QImage
-        # height, width, _ = new_image.shape
-        # height1, width1, _ = new_image1.shape
-        # bytes_per_line = 3 * width
-        # bytes_per_line1 = 3 * width1
-        # qimage = QImage(new_image.data, width, height, bytes_per_line, QImage.Format_BGR888)
-        # qimage1 = QImage(new_image1.data, width1, height1, bytes_per_line1, QImage.Format_BGR888)
-        # # 將 QImage 轉換為 QPixmap
-        # new_pixmap = QPixmap.fromImage(qimage)
-        # new_pixmap1 = QPixmap.fromImage(qimage1)
-        # scaled_pixmap = new_pixmap.scaled(1443, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        # scaled_pixmap1 = new_pixmap1.scaled(892, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        # self.tab_image4.setPixmap(scaled_pixmap)
-        # self.tab_image5.setPixmap(scaled_pixmap1)
-
         pixmap = QPixmap('res/delta_e.png')
         scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.image_g.setPixmap(scaled_pixmap)
         pixmap = QPixmap('res/Histogram of delta_e.png')
         scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.tab_image3.setPixmap(scaled_pixmap)
-        pixmap = QPixmap('res/colorblock.png')
-        scaled_pixmap = pixmap.scaled(1443, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.tab_image4.setPixmap(scaled_pixmap)
-        pixmap = QPixmap('res/k-means.png')
-        scaled_pixmap = pixmap.scaled(892, 470, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.tab_image5.setPixmap(scaled_pixmap)
-
         # 立即更新畫面
         QApplication.processEvents()
 
@@ -426,16 +384,18 @@ class StartPage(QWidget, QtCore.QObject):
         # 將QImage格式的影像顯示在image_e標籤上
         self.image_e.setPixmap(QPixmap.fromImage(qImg))
 
-    # 接收回傳的點並更新影像
-    @QtCore.pyqtSlot(list)
-    def get_return_points(self, points):
-        print(points)
-        self.return_points = points
+    # 接收回傳的資料並更新影像
+    @QtCore.pyqtSlot(dict)
+    def get_return_data(self, data):
+        print(data['points'])
+        self.return_points = data['points']
+        self.tab_image4.update_figure(data)
+        self.tab_image5.update_figure(data)
         self.update_image()
 
 
 class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
-    returnPoints = QtCore.pyqtSignal(list)
+    returnAnalyze = QtCore.pyqtSignal(dict)
 
     def __init__(self, start_page):
         super(Analyze, self).__init__(start_page)
@@ -504,190 +464,28 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         self.scale = float(tmp)
 
     def return_analyze_and_points(self):
-        m_C, m_E, _ = CC_IQA.cc_task(self.rect_img, self.scale)
-        self.label_C.setText("mean C: {:.4f}".format(m_C))
-        self.label_E.setText("mean E: {:.4f}".format(m_E))
+        data = CC_IQA.cc_task(self.rect_img, self.scale)
+        self.label_C.setText("mean C: {:.4f}".format(data["mean_C"]))
+        self.label_E.setText("mean E: {:.4f}".format(data["mean_E"]))
         pts = self.cc_image.return_points(self.ori_cc_img, self.get_p)
         if pts == False:
             QMessageBox.information(self, 'error', 'The number of selected points is insufficient',
                                     QMessageBox.Ok | QMessageBox.Close,
                                     QMessageBox.Close)
             return
+        analyze_data = data
         pts = list(map(tuple, pts))
+        analyze_data['points'] = pts
+        print(analyze_data)
         parent_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         output_file = os.path.join(parent_path, "points.txt")
         with open(output_file, 'w') as f:
             f.write(', '.join(str(p) for p in pts))
-        self.returnPoints.emit(pts)
+        self.returnAnalyze.emit(analyze_data)
         self.close()
 
     def on_exit_clicked(self):
         QApplication.exit()
-
-
-class Video(QWidget, QtCore.QObject):
-    
-    def __init__(self):
-        super().__init__()
-
-        # Create a QLabel to display the video frames
-        self.video_label = QLabel(self)
-        self.video_label.setFixedSize(640, 480)
-
-        # Create buttons for opening and playing the video
-        self.open_button = QPushButton('Open Video (waterNet)', self)
-        self.test_button = QPushButton('Test Video', self)
-
-        # Set up the layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.video_label)
-        layout.addWidget(self.open_button)
-        layout.addWidget(self.test_button)
-
-        # Connect button clicks to corresponding functions
-        self.open_button.clicked.connect(self.open_video)
-        self.test_button.clicked.connect(self.test_video)
-
-        self.setLayout(layout)
-        self.setWindowTitle("Video Player")
-
-        # Video variables
-        self.video_path = ""
-        self.video_capture = None
-        self.playing = False
-
-    def open_video(self):
-        try:
-            current_path = os.path.abspath(__file__)
-            parent_path = os.path.dirname(
-                os.path.dirname(os.path.dirname(current_path)))
-            dir_path = os.path.join(parent_path, 'input')
-            video_file, _ = QFileDialog.getOpenFileName(
-                self, 'Select Video File', dir_path, 'Video files (*.mp4 *.avi)')
-            if video_file:
-                self.video_path = video_file
-                self.videoShow_path = self.video_path
-                self.video_capture = cv2.VideoCapture(video_file)
-                self.playing = False
-            
-        except Exception as e:
-            print("Error: Unable to open the video file. Error message:")
-            print(e)
-        
-        self.use_waterNet()
-        self.video_show()
-    
-    def video_show(self, cap1, cap2):
-        # 讀取兩段影片
-        self.cap1 = cv2.VideoCapture(cap1)
-        self.cap2 = cv2.VideoCapture(cap2)
-
-        # 檢查影片大小是否一致，若不同可使用cv2.resize()函數進行調整
-        self.width = 640
-        self.height = 360
-        self.fps = self.cap1.get(cv2.CAP_PROP_FPS)
-
-        # 生成一條紅色的線
-        self.line_thickness = 2
-        self.line_length = int(self.width / 2)
-        self.line_color = (0, 0, 255)  # BGR格式，此處為紅色
-        self.line_x = int(self.width / 2)
-        self.line_start = (self.line_x, 0)
-        self.line_end = (self.line_x, self.height)
-
-        # 設定疊加影片的起始時間
-        self.start_time = 0
-        self.cap1.set(cv2.CAP_PROP_POS_MSEC, self.start_time)
-        self.cap2.set(cv2.CAP_PROP_POS_MSEC, self.start_time)
-
-        # 創建一張空白的黑色圖片，大小與影片相同
-        self.merged_image = np.zeros((self.height, self.width, 3), dtype=np.uint8)
-
-        # 設定更新影片畫面的計時器
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_frame)
-        self.timer.start(int(1000 / self.fps))  # 根據幀率設定更新間隔
-
-        # 設置滑鼠事件的回調函數
-        self.video_label.setMouseTracking(True)
-        self.video_label.mouseMoveEvent = self.on_mouse_move
-        
-    def test_video(self):
-        self.video_show('res/test_2.mp4', 'res/test_1.mp4')
-
-    def update_frame(self):
-        # 讀取兩個影格
-        ret1, frame1 = self.cap1.read()
-        ret2, frame2 = self.cap2.read()
-
-        # 若其中一個影片已讀取完畢，則退出迴圈
-        if not ret1 or not ret2:
-            self.cap1.release()
-            self.cap2.release()
-            self.timer.stop()
-            return
-
-        # 調整影格大小
-        frame1 = cv2.resize(frame1, (self.width, self.height))
-        frame2 = cv2.resize(frame2, (self.width, self.height))
-
-        # 更新疊加後的圖片
-        self.update_merged_image(frame1, frame2)
-
-    def update_merged_image(self, frame1, frame2):
-        # 將frame1與frame2分別放在空白圖片的左半邊與右半邊
-        line_end = int(self.line_x)
-        self.merged_image[:, :line_end, :] = frame1[:, :line_end, :]
-        self.merged_image[:, line_end:, :] = frame2[:, line_end:, :]
-
-        # 畫線
-        self.line_start = (self.line_x, 0)
-        self.line_end = (self.line_x, self.height)
-        
-        cv2.line(self.merged_image, self.line_start, self.line_end, self.line_color, thickness=self.line_thickness)
-
-        # 將OpenCV圖像轉換為QImage並更新到QLabel
-        merged_image_rgb = cv2.cvtColor(self.merged_image, cv2.COLOR_BGR2RGB)
-        q_image = QImage(merged_image_rgb.data, self.width, self.height, self.width * 3, QImage.Format_RGB888)
-        self.video_label.setPixmap(QPixmap.fromImage(q_image))
-
-    def on_mouse_move(self, event):
-        # 取得滑鼠位置
-        mouse_pos = event.pos()
-        self.line_x = mouse_pos.x()
-
-    def use_waterNet(self):
-        def call_inference(): # inference.py (WaterNet)
-            inference_path = os.path.expanduser("waternet/inference.py")
-            source_path = os.path.expanduser(self.video_path)
-            weights_path = os.path.expanduser("waternet/weights/last.pt")
-            output_path = os.path.expanduser('res/')
-
-            subprocess.call([
-                "python3", inference_path,
-                "--source", source_path,
-                "--weights", weights_path,
-                "--output", output_path,
-            ])
-        try:
-            if self.video_path != None:
-                # lazy loaging
-                # 並設置大小
-                self.video_label.setPixmap(QPixmap('res/loading.jpeg').scaled(1024, 576))
-                QApplication.processEvents() # 強制更新畫面
-                # 運行waterNet
-                call_inference()
-                name = os.path.basename(self.video_path)
-                os.rename('res/'+name, 'res/waterNet.mp4')
-            self.videoShow2_path = 'res/waterNet.mp4'
-            self.videoShow2 = cv2.imread(self.videoShow2_path)
-            # 顯示對比畫面
-            self.video_show(self.videoShow_path, self.videoShow2_path)
-
-        except Exception as e:
-            print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
-            print(e)
-            return
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
