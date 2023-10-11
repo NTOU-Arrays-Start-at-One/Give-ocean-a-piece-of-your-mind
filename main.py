@@ -16,6 +16,7 @@ from PIL import Image
 from VideoRecover import Video
 from AnalyzeDisplay import ColorBoardCanvas
 from AnalyzeDisplay import ColorBoardDeltaECanvas
+from Webcam import Webcam
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo
@@ -49,7 +50,10 @@ class StartPage(QWidget, QtCore.QObject):
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
         self.firstTime_Detection = True
-
+		
+		# 狀態變數，用於跟蹤Webcam是否開啟
+        self.webcam_opened = False
+        
         # 示範區塊大小
         self.DEMO_SIZE = (801, 453)
         self.MAIN_SIZE = (1900, 1060)
@@ -61,6 +65,7 @@ class StartPage(QWidget, QtCore.QObject):
         button_d = QPushButton('analyze', self)
         button_e = QPushButton('detection',self)
         button_g = QPushButton('open video', self)
+        button_h = QPushButton('webcam', self)
 
         # 副圖片
         self.image_f = QLabel(self)
@@ -81,6 +86,7 @@ class StartPage(QWidget, QtCore.QObject):
         layout_button.addWidget(button_d)
         layout_button.addWidget(button_g)
         layout_button.addWidget(button_e)
+        layout_button.addWidget(button_h)
         layout_left.addLayout(layout_button)
 
         layout_right.addWidget(self.image_f)
@@ -143,7 +149,28 @@ class StartPage(QWidget, QtCore.QObject):
         button_d.clicked.connect(self.open_Analyze)
         button_e.clicked.connect(self.use_detection)
         button_g.clicked.connect(self.open_video)
-
+        button_h.clicked.connect(self.use_webcam)
+    
+    def use_webcam(self): 
+        # 輸入新影像，所以將還原次數重置
+        self.firstTime_WaterNet = True
+        self.firstTime_Colorization = True
+        self.firstTime_Detection = True
+        self.imgShow2_path = ''
+        # 重置滑鼠追蹤事件
+        self.image_e.setMouseTracking(False)
+        
+        if not self.webcam_opened:
+            # 創建一個Webcam對象，將self.image_e傳入
+            self.webcam = Webcam(self.image_e)
+            self.webcam.start_capture()
+            self.webcam_opened = True
+        else:
+            # 如果Webcam已經開啟，可以在這裡執行關閉Webcam的操作
+            # 停止捕獲並釋放資源
+            self.webcam.stop_capture()
+            self.webcam_opened = False
+	
     def use_waterNet(self):
 
         def call_inference(): # inference.py (WaterNet)
@@ -155,13 +182,28 @@ class StartPage(QWidget, QtCore.QObject):
 
             #使用subprocess.call()來呼叫inference.py程式
             subprocess.call([
-                "python", inference_path,
+                "python3", inference_path,
                 "--source", source_path,
                 "--weights", weights_path,
                 "--output", output_path,
             ])
         try:
+            # 鏡頭處理
+            if self.webcam_opened:
+                    # 使用 Webcam 類的 save_current_frame 方法來保存畫面
+                    webcam_image_path = 'res/webcam_capture.jpg'
+                    self.webcam.save_current_frame(webcam_image_path)
+
+                    # 關閉 Webcam
+                    self.webcam.stop_capture()
+                    self.webcam_opened = False
+
+                    # 更新 img_path
+                    self.img_path = webcam_image_path
+                    self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+
             if self.firstTime_WaterNet == True and self.img_path != None:
+                
                 # lazy loaging
                 # 並設置大小
                 self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
@@ -186,7 +228,21 @@ class StartPage(QWidget, QtCore.QObject):
             return
 
     def use_colorization(self):
-        
+        # 鏡頭處理
+        if self.webcam_opened:
+                # 使用 Webcam 類的 save_current_frame 方法來保存畫面
+                webcam_image_path = 'res/webcam_capture.jpg'
+                self.webcam.save_current_frame(webcam_image_path)
+
+                # 關閉 Webcam
+                self.webcam.stop_capture()
+                self.webcam_opened = False
+
+                # 更新 img_path
+                self.img_path = webcam_image_path
+                self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+
+
         def call_colorization():
             # 設定參數
             colorization_path = os.path.expanduser("neural-colorization/colorize.py")
