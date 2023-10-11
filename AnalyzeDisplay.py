@@ -117,8 +117,8 @@ class ColorBoardDeltaECanvas(AnalyzeCanvas):
 
     def compute_initial_figure(self):
         self.axes1.set_title('Colors and Remove outlier Color')
-        self.axes2.set_title('k-means_clean')
-        self.axes3.set_title('original')
+        self.axes2.set_title('Colors and Standard Color')
+        self.axes3.set_title('Remove outlier Colors and Standard Color')
         self.axes1.text(0.5, 0.5, 'No', 
                         fontsize=40, ha='center',
                         va='center', color='red')
@@ -139,3 +139,10 @@ class ColorBoardDeltaECanvas(AnalyzeCanvas):
         self.set_subplot_properties(self.axes1, 'Colors and Remove outlier Color', color_indices, delta_e_rgb_rgbc)
         self.set_subplot_properties(self.axes2, 'Colors and Standard Color', color_indices, delta_e_rgb_std)
         self.set_subplot_properties(self.axes3, 'Remove outlier Colors and Standard Color', color_indices, delta_e_rgbc_std)
+
+        self.axes1.bar(color_indices, delta_e_rgb_rgbc, color='#2894FF')
+        self.axes2.bar(color_indices, delta_e_rgb_std, color='#2894FF')
+        self.axes3.bar(color_indices, delta_e_rgbc_std, color='#2894FF')
+
+        plt.tight_layout()
+        self.draw()
