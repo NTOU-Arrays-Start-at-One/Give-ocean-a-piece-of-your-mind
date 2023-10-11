@@ -170,8 +170,24 @@ class StartPage(QWidget, QtCore.QObject):
             # 停止捕獲並釋放資源
             self.webcam.stop_capture()
             self.webcam_opened = False
-	
+
+    def capture(self):
+        # 使用 Webcam 類的 save_current_frame 方法來保存畫面
+        webcam_image_path = 'res/webcam_capture.jpg'
+        self.webcam.save_current_frame(webcam_image_path)
+
+        # 關閉 Webcam
+        self.webcam.stop_capture()
+        self.webcam_opened = False
+
+        # 更新 img_path
+        self.img_path = webcam_image_path
+        self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+
     def use_waterNet(self):
+        # 鏡頭處理
+        if self.webcam_opened:
+            self.capture()
 
         def call_inference(): # inference.py (WaterNet)
             # 設定參數
@@ -188,20 +204,6 @@ class StartPage(QWidget, QtCore.QObject):
                 "--output", output_path,
             ])
         try:
-            # 鏡頭處理
-            if self.webcam_opened:
-                    # 使用 Webcam 類的 save_current_frame 方法來保存畫面
-                    webcam_image_path = 'res/webcam_capture.jpg'
-                    self.webcam.save_current_frame(webcam_image_path)
-
-                    # 關閉 Webcam
-                    self.webcam.stop_capture()
-                    self.webcam_opened = False
-
-                    # 更新 img_path
-                    self.img_path = webcam_image_path
-                    self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-
             if self.firstTime_WaterNet == True and self.img_path != None:
                 
                 # lazy loaging
@@ -230,18 +232,7 @@ class StartPage(QWidget, QtCore.QObject):
     def use_colorization(self):
         # 鏡頭處理
         if self.webcam_opened:
-                # 使用 Webcam 類的 save_current_frame 方法來保存畫面
-                webcam_image_path = 'res/webcam_capture.jpg'
-                self.webcam.save_current_frame(webcam_image_path)
-
-                # 關閉 Webcam
-                self.webcam.stop_capture()
-                self.webcam_opened = False
-
-                # 更新 img_path
-                self.img_path = webcam_image_path
-                self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-
+               self.capture()
 
         def call_colorization():
             # 設定參數
