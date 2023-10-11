@@ -207,12 +207,12 @@ def remove_outliers(rgb_array, threshold):
     max_vals_g = np.max(rgb_np[:,:,1])
     max_vals_b = np.max(rgb_np[:,:,2])
 
-    print(f"min_vals_r:{min_vals_r}")
-    print(f"min_vals_g:{min_vals_g}")
-    print(f"min_vals_b:{min_vals_b}")
-    print(f"max_vals_r:{max_vals_r}")
-    print(f"max_vals_g:{max_vals_g}")
-    print(f"max_vals_b:{max_vals_b}")
+    # print(f"min_vals_r:{min_vals_r}")
+    # print(f"min_vals_g:{min_vals_g}")
+    # print(f"min_vals_b:{min_vals_b}")
+    # print(f"max_vals_r:{max_vals_r}")
+    # print(f"max_vals_g:{max_vals_g}")
+    # print(f"max_vals_b:{max_vals_b}")
 
     # 判斷是否為極值
     is_outlier_r = np.logical_or(rgb_np[:,:,0] < min_vals_r + threshold, rgb_np[:,:,0] > max_vals_r - threshold)
@@ -328,15 +328,17 @@ def cc_task(cc_img, scale=0.5):
         mean_E += E
 
         count += 1
-    
+    center_rgb = np.array(center_rgb)
+    center_rgb_clean = np.array(center_rgb_clean)
+    rgb_list = np.array(rgb_list)
     #------------------cie_2000------------------
     #------- 色差比較圖 -------#
     center_rgb_temp = center_rgb.copy()
-    center_rgb_temp.append([0,0,0]) # 25個
+    center_rgb_temp = np.append(center_rgb_temp, [[0,0,0]], axis=0)
     # 改成5x5x3陣列
-    center_rgb_2d = np.array(center_rgb_temp).reshape(5,5,3)
+    center_rgb_2d = center_rgb_temp.reshape(5,5,3)
     # print(center_rgb_2d)
-    rgb_list_float = np.array(rgb_list).reshape(5,5,3)
+    rgb_list_float = rgb_list.reshape(5,5,3)
     # print(rgb_list_float)
     delta_e = cba.compare_colorboard(rgb_list_float, center_rgb_2d)
     plt.savefig(os.path.join('res', "delta_e.png")) # 儲存色差比較圖
@@ -422,28 +424,28 @@ def cc_task(cc_img, scale=0.5):
     plt.savefig('res/colorblock.png', dpi=300, bbox_inches='tight')
 
     # 將 Delta E 值和顏色對應的索引轉換為 NumPy 陣列
-    delta_e_values = np.array(rgb_rgbc_cmp)
-    delta_e_values_std = np.array(rgb_std_cmp)
-    delta_e_values_stdc = np.array(rgbc_std_cmp)
+    delta_e_rgb_rgbc = np.array(rgb_rgbc_cmp)
+    delta_e_rgb_std = np.array(rgb_std_cmp)
+    delta_e_rgbc_std = np.array(rgbc_std_cmp)
     color_indices = np.arange(len(rgb_list) - 1)
 
     plt.figure(figsize=(12, 6))
     plt.subplot(131)
-    plt.bar(color_indices, delta_e_values)
+    plt.bar(color_indices, delta_e_rgb_rgbc)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
     plt.title('Colors and Remove outlier Color')
 
     plt.subplot(132)
-    plt.bar(color_indices, delta_e_values_std)
+    plt.bar(color_indices, delta_e_rgb_std)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
     plt.title('Colors and Standard Color')
 
     plt.subplot(133)
-    plt.bar(color_indices, delta_e_values_stdc)
+    plt.bar(color_indices, delta_e_rgbc_std)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
@@ -456,4 +458,7 @@ def cc_task(cc_img, scale=0.5):
     mean_E /= 24
     # print("C:{} | E:{} ".format(mean_C, mean_E))
     #print(mean_C, mean_E)
-    return mean_C, mean_E, img_rect_
+    return {"mean_C" : mean_C, "mean_E" : mean_E, "img_rect_" : img_rect_,
+            "center_rgb" : center_rgb, "center_rgb_clean" : center_rgb_clean, "rgb_list" : rgb_list,
+            "delta_e_rgb_rgbc" : delta_e_rgb_rgbc, "delta_e_rgb_std" : delta_e_rgb_std, "delta_e_rgbc_std" : delta_e_rgbc_std,
+            "color_indices" : color_indices}

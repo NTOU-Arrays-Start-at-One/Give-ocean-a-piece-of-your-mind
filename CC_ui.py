@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
         self.label_3.setGeometry(QtCore.QRect(20, 610, 500, 16))
         self.label_3.setObjectName("label_3")
         self.PB_ok_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.PB_ok_2.setGeometry(QtCore.QRect(bias_width + 505, 750, 140, 23))
+        self.PB_ok_2.setGeometry(QtCore.QRect(bias_width + 495, 745, 160, 27))
         self.PB_ok_2.setObjectName("PB_ok_2")
 
         #self.cc_image = QtWidgets.QLabel(self.centralwidget)
