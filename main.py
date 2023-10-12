@@ -17,6 +17,7 @@ from VideoRecover import Video
 from AnalyzeDisplay import ColorBoardCanvas
 from AnalyzeDisplay import ColorBoardDeltaECanvas
 from Webcam import Webcam
+import shutil
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo
@@ -183,7 +184,10 @@ class StartPage(QWidget, QtCore.QObject):
         # 更新 img_path
         self.img_path = webcam_image_path
         self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-
+        self.image_e.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+        self.imgShow2 = self.imgShow1.copy()
+        
+        
     def use_waterNet(self):
         # 鏡頭處理
         if self.webcam_opened:
@@ -216,8 +220,9 @@ class StartPage(QWidget, QtCore.QObject):
                 self.firstTime_WaterNet = False
                 # 取得self.img_path的檔名
                 name = os.path.basename(self.img_path)
+                
                 # 將檔名改成 waterNet.jpg 以符合 imgShow2_path的預設位置
-                os.rename('res/'+name, 'res/waterNet.jpg')
+                shutil.copy(self.img_path, 'res/waterNet.jpg')
 
             self.imgShow2_path = 'res/waterNet.jpg'
             self.imgShow2 = cv2.imread(self.imgShow2_path)
