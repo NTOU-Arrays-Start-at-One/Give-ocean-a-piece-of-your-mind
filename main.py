@@ -222,7 +222,7 @@ class StartPage(QWidget, QtCore.QObject):
                 name = os.path.basename(self.img_path)
                 
                 # 將檔名改成 waterNet.jpg 以符合 imgShow2_path的預設位置
-                shutil.copy(self.img_path, 'res/waterNet.jpg')
+                shutil.copy('res/'+name, 'res/waterNet.jpg')
 
             self.imgShow2_path = 'res/waterNet.jpg'
             self.imgShow2 = cv2.imread(self.imgShow2_path)
