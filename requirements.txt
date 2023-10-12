@@ -13,3 +13,4 @@ matplotlib
 scipy
 ultralytics
 Pillow
+pytest-shutil
