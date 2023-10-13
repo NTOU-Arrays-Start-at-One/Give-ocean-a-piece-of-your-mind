@@ -14,8 +14,7 @@ import subprocess
 from ultralytics import YOLO
 from PIL import Image
 from VideoRecover import Video
-from AnalyzeDisplay import ColorBoardCanvas
-from AnalyzeDisplay import ColorBoardDeltaECanvas
+from AnalyzeDisplay import ColorBoardCanvas, ColorBoardDeltaECanvas, tanaAnalyze
 from Webcam import Webcam
 import shutil
 import threading
@@ -106,8 +105,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab3 = QWidget()
         layout_tab3 = QHBoxLayout()
         scroll_area_tab3 = QScrollArea()
-        self.tab_image3 = QLabel(tab3)
-        self.tab_image3.setPixmap(QPixmap('res/Figure_3.png'))
+        self.tab_image3 = tanaAnalyze(tab3, width=17, height=5, dpi=100, num_subplots=1)
         layout_tab3.addWidget(self.tab_image3)
         tab3.setLayout(layout_tab3)
         scroll_area_tab3.setWidget(tab3)
@@ -118,7 +116,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab4 = QWidget()
         layout_tab4 = QHBoxLayout()
         scroll_area_tab4 = QScrollArea()
-        self.tab_image4 = ColorBoardCanvas(tab4, width=17, height=5, dpi=100)
+        self.tab_image4 = ColorBoardCanvas(tab4, width=17, height=5, dpi=100, num_subplots=3)
         layout_tab4.addWidget(self.tab_image4)
         tab4.setLayout(layout_tab4)
         scroll_area_tab4.setWidget(tab4)
@@ -129,7 +127,7 @@ class StartPage(QWidget, QtCore.QObject):
         tab5 = QWidget()
         layout_tab5 = QHBoxLayout()
         scroll_area_tab5 = QScrollArea()
-        self.tab_image5 = ColorBoardDeltaECanvas(tab5, width=17, height=5, dpi=100)
+        self.tab_image5 = ColorBoardDeltaECanvas(tab5, width=17, height=5, dpi=100, num_subplots=3)
         layout_tab5.addWidget(self.tab_image5)
         tab5.setLayout(layout_tab5)
         scroll_area_tab5.setWidget(tab5)
@@ -238,7 +236,7 @@ class StartPage(QWidget, QtCore.QObject):
     def use_colorization(self):
         # 鏡頭處理
         if self.webcam_opened:
-               self.capture()
+            self.capture()
 
         def call_colorization():
             # 設定參數
@@ -358,9 +356,6 @@ class StartPage(QWidget, QtCore.QObject):
         pixmap = QPixmap('res/delta_e.png')
         scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.image_g.setPixmap(scaled_pixmap)
-        pixmap = QPixmap('res/Histogram of delta_e.png')
-        scaled_pixmap = pixmap.scaled(1167, 500, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.tab_image3.setPixmap(scaled_pixmap)
         # 立即更新畫面
         QApplication.processEvents()
 
@@ -442,6 +437,7 @@ class StartPage(QWidget, QtCore.QObject):
     def get_return_data(self, data):
         print(data['points'])
         self.return_points = data['points']
+        self.tab_image3.update_figure(data)
         self.tab_image4.update_figure(data)
         self.tab_image5.update_figure(data)
         self.update_image()

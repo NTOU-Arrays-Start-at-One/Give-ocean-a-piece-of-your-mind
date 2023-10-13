@@ -328,17 +328,14 @@ def cc_task(cc_img, scale=0.5):
         mean_E += E
 
         count += 1
-    center_rgb = np.array(center_rgb)
-    center_rgb_clean = np.array(center_rgb_clean)
-    rgb_list = np.array(rgb_list)
     #------------------cie_2000------------------
     #------- 色差比較圖 -------#
     center_rgb_temp = center_rgb.copy()
     center_rgb_temp = np.append(center_rgb_temp, [[0,0,0]], axis=0)
     # 改成5x5x3陣列
-    center_rgb_2d = center_rgb_temp.reshape(5,5,3)
+    center_rgb_2d = np.array(center_rgb_temp).reshape(5,5,3)
     # print(center_rgb_2d)
-    rgb_list_float = rgb_list.reshape(5,5,3)
+    rgb_list_float = np.array(rgb_list).reshape(5,5,3)
     # print(rgb_list_float)
     delta_e = cba.compare_colorboard(rgb_list_float, center_rgb_2d)
     plt.savefig(os.path.join('res', "delta_e.png")) # 儲存色差比較圖
@@ -380,8 +377,11 @@ def cc_task(cc_img, scale=0.5):
     # 再將 XYZ 值轉換成 LAB 值
     # 再將 LAB 值轉換成 RGB 值
 
+    center_rgb = np.array(center_rgb)
+    center_rgb_clean = np.array(center_rgb_clean)
+    rgb_list = np.array(rgb_list)
     #------------------k-means------------------
-    X = np.array(center_rgb)
+    X = center_rgb
     # k-means 分群
     kmeans = KMeans(n_clusters=5).fit(X)
     # 每個色塊所屬的群組
