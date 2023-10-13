@@ -141,6 +141,9 @@ class ColorBoardDeltaECanvas(AnalyzeCanvas):
         delta_e_rgb_std = data['delta_e_rgb_std']
         delta_e_rgbc_std = data['delta_e_rgbc_std']
         color_indices = data['color_indices']
+        delta_e_rgb_rgbc_mean = np.mean(delta_e_rgb_rgbc)
+        delta_e_rgb_std_mean = np.mean(delta_e_rgb_std)
+        delta_e_rgbc_std_mean = np.mean(delta_e_rgbc_std)
         
         self.set_subplot_properties(self.axes[0], 'Colors and Remove outlier Color', color_indices, delta_e_rgb_rgbc)
         self.set_subplot_properties(self.axes[1], 'Colors and Standard Color', color_indices, delta_e_rgb_std)
@@ -149,6 +152,12 @@ class ColorBoardDeltaECanvas(AnalyzeCanvas):
         self.axes[0].bar(color_indices, delta_e_rgb_rgbc, color='#2894FF')
         self.axes[1].bar(color_indices, delta_e_rgb_std, color='#2894FF')
         self.axes[2].bar(color_indices, delta_e_rgbc_std, color='#2894FF')
+        self.axes[0].axhline(delta_e_rgb_rgbc_mean, color='r', linestyle='--', label='delta_e_rgb_rgbc_mean')
+        self.axes[1].axhline(delta_e_rgb_std_mean, color='r', linestyle='--', label='delta_e_rgb_std_mean')
+        self.axes[2].axhline(delta_e_rgbc_std_mean, color='r', linestyle='--', label='delta_e_rgbc_std_mean')
+        self.axes[0].text(27.5, delta_e_rgb_rgbc_mean, f"{delta_e_rgb_rgbc_mean:.2f}", ha='right', va='bottom', color='r')
+        self.axes[1].text(27.5, delta_e_rgb_std_mean, f"{delta_e_rgb_std_mean:.2f}", ha='right', va='bottom', color='r')
+        self.axes[2].text(27.5, delta_e_rgbc_std_mean, f"{delta_e_rgbc_std_mean:.2f}", ha='right', va='bottom', color='r')
 
         self.draw()
 
