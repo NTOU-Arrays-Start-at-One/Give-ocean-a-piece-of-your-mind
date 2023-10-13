@@ -18,6 +18,7 @@ from AnalyzeDisplay import ColorBoardCanvas
 from AnalyzeDisplay import ColorBoardDeltaECanvas
 from Webcam import Webcam
 import shutil
+import threading
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo

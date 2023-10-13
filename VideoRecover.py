@@ -6,7 +6,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 import numpy as np
 import subprocess
-
+import threading
 
 class Video(QWidget, QtCore.QObject):
     
@@ -57,8 +57,8 @@ class Video(QWidget, QtCore.QObject):
             print("Error: Unable to open the video file. Error message:")
             print(e)
         
-        self.use_waterNet()
-        self.video_show()
+        video_thread = threading.Thread(target=self.use_waterNet)
+        video_thread.start()
     
     def video_show(self, cap1, cap2):
         # 讀取兩段影片
