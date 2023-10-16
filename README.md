@@ -1,14 +1,28 @@
-# Give-ocean-a-piece-of-your-mind
-[🇹🇼繁體中文](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/chinese.md) | [🌏English](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README.md) | [📝Paper Coming Soon]()
+# Give Ocean A Piece Of Your Mind
 
-<p align="center">
-  <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
+<div align="center">
+  <div>
+    <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/chinese.md">🇹🇼繁體中文</a> |
+    <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README.md">🌏English</a> |
+    <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues">❓issues</a> |
+    <a href="#">📝Paper Coming Soon</a>
+  </div>
   <br>
-  <a href="https://app.codacy.com/gh/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/7d2de1a21412457b83366b5e822cdfac">
-</p>
+  <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/assets/75748924/53e3f54e-0de8-4751-ac07-02628458ac09" alt="badge" width="700">
+  <br>
+  <div>
+    <a href="https://app.codacy.com/gh/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/7d2de1a21412457b83366b5e822cdfac">
+  </a>
+    <img alt="Using Python version" src="https://img.shields.io/badge/python-3.8.10-blue.svg">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind">
+  </div>
+</div>
 
-## Overview🧋
+## Overview🍩
 This system is dedicated to the sustainable development of the ocean, combining underwater image colorization and restoration, object detection, and various neural network models to assist people in more effectively researching and understanding the ocean.
+<div>
+  <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
+</div>
 
 ## Paper📝
 Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques, 2023 IEEE International Conference on Marine Artificial Intelligence and Law (IEEE ICMAIL 2023).
@@ -60,9 +74,9 @@ Note: This project uses python version 3.8.10. If your python version is too dif
 python3 main.py
 ```
 
-## Notes
+## Notes📔
 + Development environment: Ubuntu 20.04.6 LTS
-Windows users need to execute `python main.py` and replace all instances of `python3` in the code with `python`.
++ Windows users need to execute `python main.py` and replace all instances of `python3` in the code with `python`.
 
 Example:
 ```python
