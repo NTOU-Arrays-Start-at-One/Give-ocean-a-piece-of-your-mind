@@ -17,18 +17,20 @@ class Webcam:
     def update_frame(self):
         ret, frame = self.capture.read()
         if ret:
-            # 轉換OpenCV圖像為Qt影像
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            h, w, ch = frame.shape
-            bytes_per_line = ch * w
-            qt_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-
+            # 將捕獲的圖像轉換為灰度圖像
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+            h, w = frame.shape  # 獲取灰度圖像的高度和寬度
+            bytes_per_line = w
+            qt_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_Grayscale8)
+    
             # 顯示攝像頭畫面
             self.display_frame(qt_image)
-            
+
     def save_current_frame(self, file_path):
         ret, frame = self.capture.read()
         if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             # 以獨特的名稱儲存當前鏡頭畫面
             cv2.imwrite(file_path, frame)
 
