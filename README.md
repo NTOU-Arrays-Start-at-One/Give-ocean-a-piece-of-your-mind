@@ -35,6 +35,7 @@ Enhancing Underwater Images: Automatic Colorization using Deep Learning and Imag
 <div align="center">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
 </div>
+
 ## Key Features
 
 1.  **Underwater Image Restoration**: WaterNet, using weights trained on the provided dataset by the author.
@@ -108,18 +109,18 @@ Through YOLO v8 object detection, we can identify various objects, fish species,
 
 ## Other
 +   Potential Issues:
-  -   colormath Version Problem: May result in color analysis not functioning correctly.
-    -   [Issue #27: Colorboard Analysis on the First Page of Windows Cannot Be Analyzed Correctly](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
-  -   NumPy Version Problem:
-    -   [Issue #26: NumPy Runtime Issue Encountered When Capturing Manually](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/26)
-  -   Window Size Concern: Computers with resolutions below 1080p may have usability issues.
-    -   [Issue #17: Window Size Concerns](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/17)
-  -   Windows Usage Problems:
-    -   [Issue #6: Errors Running waterNet and Colorization on Windows](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/6)
+  - colormath Version Problem: May result in color analysis not functioning correctly.
+    - [Issue #27: Colorboard Analysis on the First Page of Windows Cannot Be Analyzed Correctly](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
+  - NumPy Version Problem:
+    - [Issue #26: NumPy Runtime Issue Encountered When Capturing Manually](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/26)
+  - Window Size Concern: Computers with resolutions below 1080p may have usability issues.
+    - [Issue #17: Window Size Concerns](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/17)
+  - Windows Usage Problems:
+    - [Issue #6: Errors Running waterNet and Colorization on Windows](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/6)
 
 +   Past Versions:
-  -   [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git): Automatic color board capture and analysis.
-  -   [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git): Automatic color board calibration and analysis.
+  - [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git): Automatic color board capture and analysis.
+  - [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git): Automatic color board calibration and analysis.
 
 ## Code References
 -   [WaterNet](https://github.com/tnwei/waternet)
