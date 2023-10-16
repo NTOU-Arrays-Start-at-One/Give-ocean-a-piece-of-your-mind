@@ -20,7 +20,7 @@
 
 ## Overview🍩
 This system is dedicated to the sustainable development of the ocean, combining underwater image colorization and restoration, object detection, and various neural network models to assist people in more effectively researching and understanding the ocean.
-<div>
+<div align="center">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
 </div>
 
@@ -32,8 +32,9 @@ Enhancing Underwater Images: Automatic Colorization using Deep Learning and Imag
 + **Scene Variety**: Provides weights for underwater and land scenes.
 + **Ocean Sustainability Technology**: Assists in the observation and research of the ocean.
 
-<img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
-
+<div align="center">
+  <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
+</div>
 ## Key Features
 
 1. **Underwater Image Restoration**: WaterNet, using weights trained on the provided dataset by the author.
@@ -48,8 +49,9 @@ Enhancing Underwater Images: Automatic Colorization using Deep Learning and Imag
 
 6. **Colorblock Capture and Analysis**: Manually captures colorblocks to evaluate colorblock data in images.
 
-<img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/7.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/8.png?raw=true" alt="frame9125" width="300">
-<img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/6.png?raw=true" alt="frame9125" width="250">
+<div align="center">
+  <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/7.png?raw=true" alt="frame9125" width="290"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/8.png?raw=true" alt="frame9125" width="290"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/6.png?raw=true" alt="frame9125" width="243">
+</div>
 
 ## Installation
 
