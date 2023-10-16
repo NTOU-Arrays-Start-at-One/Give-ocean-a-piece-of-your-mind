@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget, QComboBox, QFormLayout
 from CC_ui import Ui_MainWindow
 from PyQt5.QtWidgets import QScrollArea
 from PyQt5.QtGui import QImage, QPixmap, QMovie
@@ -33,8 +33,10 @@ class StartPage(QWidget, QtCore.QObject):
         #demo
         self.times = 0
 
-        # YOLO v8 model
+        # model
         self.yoloModel = YOLO("detection/best.pt")
+        self.colorization_model = "neural-colorization/G.pth"
+        
         # 設置物件
         # 主圖片
         self.image_e = QLabel(self)
@@ -68,6 +70,10 @@ class StartPage(QWidget, QtCore.QObject):
         button_g = QPushButton('open video', self)
         button_h = QPushButton('webcam', self)
 
+        self.colorization_selector = QComboBox(self)
+        self.detection_selector = QComboBox(self)
+        self.webcam_selector = QComboBox(self)
+        
         # 副圖片
         self.image_f = QLabel(self)
         self.image_f.setPixmap(QPixmap('Standard.png').scaled(450,450))
@@ -76,19 +82,37 @@ class StartPage(QWidget, QtCore.QObject):
         # 版面配置
         layout = QHBoxLayout()
         layout_left = QVBoxLayout()
+        layout_left.addWidget(self.image_e)
         layout_right = QHBoxLayout()
 
-        layout_left.addWidget(self.image_e)
+        # ----------- 按鈕配置 -----------
+        # 建立按鈕和下拉選擇框，並使其對齊
+        buttons_and_selectors = [
+            (button_a, None),  # 填充空白
+            (button_b, self.colorization_selector),
+            (button_c, None),  # 填充空白
+            (button_d, None),  # 填充空白
+            (button_g, None),  # 填充空白
+            (button_e, self.detection_selector),
+            (button_h, self.webcam_selector)   
+        ]
 
-        layout_button = QHBoxLayout()
-        layout_button.addWidget(button_a)
-        layout_button.addWidget(button_b)
-        layout_button.addWidget(button_c)
-        layout_button.addWidget(button_d)
-        layout_button.addWidget(button_g)
-        layout_button.addWidget(button_e)
-        layout_button.addWidget(button_h)
-        layout_left.addLayout(layout_button)
+        # 取得按鈕和下拉選擇框對的最大寬度
+        max_width = max(button.sizeHint().width() if button is not None else 0 for button, _ in buttons_and_selectors)
+
+        # 建立佈局以容納每個按鈕和下拉選擇框對，從左到右
+        button_selector_layout = QHBoxLayout()
+        for button, selector in buttons_and_selectors:
+            button_layout = QVBoxLayout()
+            if button is not None:
+                button_layout.addWidget(button)
+            if selector is not None:
+                button_layout.addWidget(selector)
+            button_layout.addStretch()  # 用空白填滿剩餘空間，使它們上下對齊
+            button_layout.setContentsMargins(0, 0, max_width - button_layout.sizeHint().width(), 0)
+            button_selector_layout.addLayout(button_layout)
+
+        layout_left.addLayout(button_selector_layout)
 
         layout_right.addWidget(self.image_f)
         layout_right.addWidget(self.image_g)
@@ -96,7 +120,27 @@ class StartPage(QWidget, QtCore.QObject):
 
         layout.addLayout(layout_left)
         layout.addLayout(layout_right)
-
+        # ----------- 按鈕配置 -----------
+        
+        # 下拉選單
+        self.colorization_selector.addItem("test1")
+        self.colorization_selector.addItem("test2")
+        self.detection_selector.addItem("fish")
+        self.detection_selector.addItem("colorBoard")
+        self.detection_selector.addItem("yolov8n")
+        self.detection_selector.addItem("yolov8x")
+        self.detection_selector.addItem("yolov8x-oiv7")
+        
+        self.webcam_selector.addItem("GRAY")
+        self.webcam_selector.addItem("RGB")
+        
+        self.colorization_selector.activated.connect(self.select_colorization)
+        self.detection_selector.activated.connect(self.select_detection)
+        self.webcam_selector.activated.connect(self.select_webcam_color)
+        self.select_detection()
+        self.select_colorization()
+        self.select_webcam_color()
+        
         # 頁籤
         tab_widget = QTabWidget()
         tab_widget.setFixedSize(1875, 500)
@@ -151,6 +195,35 @@ class StartPage(QWidget, QtCore.QObject):
         button_g.clicked.connect(self.open_video)
         button_h.clicked.connect(self.use_webcam)
     
+    def select_colorization(self):
+        select = self.colorization_selector.currentText()
+        if select == "water":
+            self.colorization_model = "neural-colorization/G.pth"
+        elif select == "test2":
+            self.colorization_model = "" # TODO
+        self.firstTime_Colorization = True
+    
+    def select_detection(self):
+        select = self.detection_selector.currentText()
+        if select == "fish":
+            self.yoloModel = YOLO("detection/betterdetection/best.pt")
+        elif select == "colorBoard":
+            self.yoloModel = YOLO("detection/best.pt")
+        elif select == "yolov8n":
+            self.yoloModel = YOLO("detection/yolov8n.pt")
+        elif select == "yolov8x":
+            self.yoloModel = YOLO("detection/yolov8x.pt")
+        elif select == "yolov8x-oiv7":
+            self.yoloModel = YOLO("detection/yolov8x-oiv7.pt")
+        self.firstTime_Detection = True
+    
+    def select_webcam_color(self):
+        select = self.webcam_selector.currentText()
+        if select == "GRAY":
+            self.webcam_color = "GRAY"
+        elif select == "RGB":
+            self.webcam_color = "RGB"
+    
     def use_webcam(self): 
         # 輸入新影像，所以將還原次數重置
         self.firstTime_WaterNet = True
@@ -162,14 +235,16 @@ class StartPage(QWidget, QtCore.QObject):
         
         if not self.webcam_opened:
             # 創建一個Webcam對象，將self.image_e傳入
-            self.webcam = Webcam(self.image_e)
+            self.webcam = Webcam(self.image_e, self.webcam_color)
             self.webcam.start_capture()
             self.webcam_opened = True
         else:
             # 如果Webcam已經開啟，可以在這裡執行關閉Webcam的操作
-            # 停止捕獲並釋放資源
             self.webcam.stop_capture()
             self.webcam_opened = False
+            self.webcam = Webcam(self.image_e, self.webcam_color)
+            self.webcam.start_capture()
+            self.webcam_opened = True
 
     def capture(self):
         # 使用 Webcam 類的 save_current_frame 方法來保存畫面
@@ -243,7 +318,8 @@ class StartPage(QWidget, QtCore.QObject):
             colorization_path = os.path.expanduser("neural-colorization/colorize.py")
             
             source_path = os.path.expanduser(self.img_path)
-            weights_path = os.path.expanduser("neural-colorization/G.pth")
+            # weights_path = os.path.expanduser("neural-colorization/G.pth")
+            weights_path = self.colorization_model
             output_path = os.path.expanduser("res/colorization.jpg")
 
             #使用subprocess.call()來呼叫colorization.py程式
@@ -273,6 +349,10 @@ class StartPage(QWidget, QtCore.QObject):
             return
     
     def use_detection(self):
+        # 鏡頭處理
+        if self.webcam_opened:
+            self.capture()
+            
         # 設定參數
         left_source_path:str = os.path.expanduser(self.img_path)
         try:
