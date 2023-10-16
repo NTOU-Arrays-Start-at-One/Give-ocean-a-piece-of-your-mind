@@ -19,7 +19,7 @@
 
 ## 摘要🍩
 本系統致力於海洋永續發展，結合水下影像的上色與還原、物件偵測等功能，以多種神經網路模型，協助人們更有效地深入研究和認識海洋。
-<div>
+<div align="center">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
 </div>
 
@@ -32,7 +32,7 @@
 +   **場景多樣性**：提供水下、陸上等場景的權重。
 +   **海洋永續科技**：協助海洋的觀察與研究。
 
-<div>
+<div align="center">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true"  alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
 </div>
 
@@ -50,7 +50,7 @@
 
 6.  **色板擷取與分析**：透過手動擷取色板，以評估影像中的色板資料。
 
-<div>
+<div align="center">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/7.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/8.png?raw=true" alt="frame9125" width="300">
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/6.png?raw=true" alt="frame9125" width="250">
 </div>
@@ -110,7 +110,7 @@ WaterNet是一個基於卷積神經網絡的模型，可以減少水下光散射
 透過YOLO v8物件偵測模型，可以對各物件、魚類及色板進行辨識。
 
 ## 其他
-### 潛在問題：
+### 潛在問題
   - colormath 的版本問題：可能造成色彩分析無法正常進行。
     - [Windows 第一分頁的色板分析無法正確分析 #27](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
   - NumPy 的版本問題：
