@@ -110,18 +110,18 @@ WaterNet是一個基於卷積神經網絡的模型，可以減少水下光散射
 透過YOLO v8物件偵測模型，可以對各物件、魚類及色板進行辨識。
 
 ## 其他
-+   潛在問題：
-  -   colormath 的版本問題：可能造成色彩分析無法正常進行。
-    -   [Windows 第一分頁的色板分析無法正確分析 #27](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
-  -   NumPy 的版本問題：
-    -   [手動擷取時，遇到 NumPy 的運行問題#26](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/26)
-  -   視窗大小的隱患：在1080p解析度以下的電腦，可能難以使用。
-    -   [視窗大小的隱患 #17](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/17)
-  -   windows使用上的問題：
-    -   [在 windows 下 waterNet 與 colorization 運行錯誤的問題 #5](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/6)
-+   過去版本
-  -   [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git)：色板自動擷取與分析
-  -   [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git)：色板自動校正與分析
+### 潛在問題：
+  - colormath 的版本問題：可能造成色彩分析無法正常進行。
+    - [Windows 第一分頁的色板分析無法正確分析 #27](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
+  - NumPy 的版本問題：
+    - [手動擷取時，遇到 NumPy 的運行問題#26](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/26)
+  - 視窗大小的隱患：在1080p解析度以下的電腦，可能難以使用。
+    - [視窗大小的隱患 #17](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/17)
+  - windows使用上的問題：
+    - [在 windows 下 waterNet 與 colorization 運行錯誤的問題 #5](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/6)
+### 過去版本
+  - [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git)：色板自動擷取與分析
+  - [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git)：色板自動校正與分析
 
 ## 參考程式碼
 -   [WaterNet](https://github.com/tnwei/waternet)
