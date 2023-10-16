@@ -22,11 +22,17 @@
 <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
 
 ## 主要功能
+
 1. **水下影像還原**：WaterNet，使用該作者提供的資料集訓練的權重。
+
 2. **自動上色**：neural-colorization，該作者提供的原始權重與我們訓練的權重。
+
 3. **載入圖片、影片、網路視訊鏡頭**：支援多媒體使用。
+
 4. **影像的滑塊比對**：提供更便利與直觀的比對方式。
+
 5. **物件辨識**：YOLO v8，官方原始權重與我們訓練的魚群、色板的權重。
+
 6. **色板擷取與分析**：透過手動擷取色板，以評估影像中的色板資料。
 
 <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/7.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/8.png?raw=true" alt="frame9125" width="300">
@@ -73,12 +79,16 @@ subprocess.call([
 
 ## 研究方法
 使用[WaterNet](https://github.com/tnwei/waternet)水色還原模型與[neural-colorization](https://github.com/zeruniverse/neural-colorization)自動上色模型來進行水下色彩還原、黑白影像上色，再使用數值方法評估影像還原結果，並透過[YOLO v8](https://github.com/ultralytics/ultralytics)進行物件辨識。
+
 1. WaterNet水色還原模型
 WaterNet是一個基於卷積神經網絡的模型，可以減少水下光散射所帶來的影響。
+
 2. neural-colorization自動上色模型
 由於水下紅光損失嚴重，而自動上色模型，可以在灰階影像中產生出任何顏色，故將其應用至水下色彩還原。
+
 3. 色彩分析
 為了比對影像還原前後的結果，我們將色板照片放入拍攝場景中，來分析評估還原的成效。並使用k-means與CIE-2000來對色塊進行分析。
+
 4. 物件辨識
 透過YOLO v8物件偵測模型，可以對各物件、魚類及色板進行辨識。
 
