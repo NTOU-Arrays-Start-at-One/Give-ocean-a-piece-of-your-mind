@@ -2,7 +2,7 @@
 
 <div align="center">
   <div>
-    <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/chinese.md">🇹🇼繁體中文</a> |
+    <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README_zh_TW.md">🇹🇼繁體中文</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README.md">🌏English</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues">❓issues</a> |
     <a href="#">📝論文準備中</a>
