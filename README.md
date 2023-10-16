@@ -13,19 +13,25 @@ This system is dedicated to the sustainable development of the ocean, combining 
 ## Paper📝
 Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques, 2023 IEEE International Conference on Marine Artificial Intelligence and Law (IEEE ICMAIL 2023).
 
-## Features
+## Advantages
 + **Multimedia Support**: Capable of loading images, videos, and web camera feeds.
 + **Scene Variety**: Provides weights for underwater and land scenes.
 + **Ocean Sustainability Technology**: Assists in the observation and research of the ocean.
 
 <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/5.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/2.png?raw=true" alt="frame9125" width="308">
 
-## Main Functions
+## Key Features
+
 1. **Underwater Image Restoration**: WaterNet, using weights trained on the provided dataset by the author.
+
 2. **Automatic Colorization**: neural-colorization, original weights provided by the author, and weights trained by us.
+
 3. **Load Images, Videos, and Web Camera Feeds**: Supports multimedia usage.
+
 4. **Image Slider Comparison**: Provides a more convenient and intuitive way to compare images.
+
 5. **Object Recognition**: YOLO v8, official original weights and weights trained for fish and colorblock recognition.
+
 6. **Colorblock Capture and Analysis**: Manually captures colorblocks to evaluate colorblock data in images.
 
 <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/7.png?raw=true" alt="frame9125" width="300"><img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/8.png?raw=true" alt="frame9125" width="300">
