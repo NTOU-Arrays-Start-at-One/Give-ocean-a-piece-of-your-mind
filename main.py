@@ -298,8 +298,8 @@ class StartPage(QWidget, QtCore.QObject):
                     img_right = img_right.resize((self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                     self.imgShow2 = np.array(img_right)
                 self.firstTime_Detection = False
-
             self.image_show()
+
         except Exception as e:
             print("Error: 請先上傳圖片或是物件偵測運行有錯誤，錯誤訊息如下：")
             print(e)
@@ -360,31 +360,34 @@ class StartPage(QWidget, QtCore.QObject):
         QApplication.processEvents()
 
     def image_show(self):
-        self.imgShow2 = cv2.resize(
-            self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
-        
-        # 生成一條紅色的線
-        height, width, channels = self.imgShow1.shape
-        line_thickness = 2
-        line_length = int(width / 2)
-        line_color = (0, 0, 255)  # BGR格式，此處為紅色
-        line_x = int(width / 2)
-        line_start = (line_x, 0)
-        line_end = (line_x, height)
+        if self.imgShow2_path != '':
+            self.imgShow2 = cv2.resize(
+                self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
 
-        # 生成一張空白的黑色圖片，大小與self.imgShow1相同
-        merged_image = np.zeros((height, width, channels), dtype=np.uint8)
+            # 生成一條紅色的線
+            height, width, channels = self.imgShow1.shape
+            line_thickness = 2
+            line_length = int(width / 2)
+            line_color = (0, 0, 255)  # BGR格式，此處為紅色
+            line_x = int(width / 2)
+            line_start = (line_x, 0)
+            line_end = (line_x, height)
 
-        # 將self.imgShow1與self.imgShow2分別放在空白圖片的左半邊與右半邊
-        merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
-        merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
+            # 生成一張空白的黑色圖片，大小與self.imgShow1相同
+            merged_image = np.zeros((height, width, channels), dtype=np.uint8)
 
-        # 設置滑鼠追蹤事件
-        self.image_e.setMouseTracking(True)
-        self.image_e.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
+            # 將self.imgShow1與self.imgShow2分別放在空白圖片的左半邊與右半邊
+            merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
+            merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
 
-        cv2.line(merged_image, line_start, line_end,
-                 line_color, line_thickness)
+            # 設置滑鼠追蹤事件
+            self.image_e.setMouseTracking(True)
+            self.image_e.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
+
+            cv2.line(merged_image, line_start, line_end,
+                    line_color, line_thickness)
+        else:
+            merged_image = self.imgShow1.copy()
 
         # 將圖片色彩空間從BGR轉換成RGB
         merged_image = cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB)
