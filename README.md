@@ -108,7 +108,7 @@ In order to compare results before and after image restoration, we incorporate c
 Through YOLO v8 object detection, we can identify various objects, fish species, and colorboards.
 
 ## Other
-+   Potential Issues:
+### Potential Issues
   - colormath Version Problem: May result in color analysis not functioning correctly.
     - [Issue #27: Colorboard Analysis on the First Page of Windows Cannot Be Analyzed Correctly](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/27)
   - NumPy Version Problem:
@@ -118,7 +118,7 @@ Through YOLO v8 object detection, we can identify various objects, fish species,
   - Windows Usage Problems:
     - [Issue #6: Errors Running waterNet and Colorization on Windows](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues/6)
 
-+   Past Versions:
+### Past Versions
   - [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git): Automatic color board capture and analysis.
   - [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git): Automatic color board calibration and analysis.
 
