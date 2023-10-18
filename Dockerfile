@@ -1,18 +1,15 @@
-FROM fadawar/docker-pyqt5
+FROM ubuntu:20.04
 
-WORKDIR /app
+ENV ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive
 
-# 安裝pip
-RUN apt-get update && apt-get install -y python3-pip
-RUN pip3 install --upgrade pip
+RUN apt-get update &&\
+    apt-get install -y software-properties-common &&\
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update &&\
+    apt-get install -y python3.8 &&\
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 10 &&\
+    update-alternatives --set python3 /usr/bin/python3.8 &&\
+    apt-get install -y python3-pyqt5
 
-# 將 requirements.txt 複製到容器中
-COPY requirements.txt /app/requirements.txt
-
-RUN apt-get update && apt-get install -y python3
-RUN pip install -r requirements.txt
-
-COPY . /app
-
-# 定义容器启动命令
-CMD ["python3", "main.py"]
+COPY requirements.txt /app/
+RUN pip install -r /app/requirements.txt

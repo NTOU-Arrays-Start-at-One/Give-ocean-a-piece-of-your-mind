@@ -1,9 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget, QComboBox
 from CC_ui import Ui_MainWindow
 from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtGui import QImage, QPixmap, QMovie
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt
 import PyQt5.QtCore as QtCore
 import cv2
 import numpy as np
@@ -596,6 +596,16 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         self.scale = float(tmp)
 
     def return_analyze_and_points(self):
+        # 顯示通知框
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.resize(100, 100)
+        msg.setWindowTitle('通知')
+        msg.setText('函數執行中...')
+        msg.setStandardButtons(QMessageBox.NoButton)
+        msg.show()
+        QApplication.processEvents() # 強制更新畫面
+
         data = CC_IQA.cc_task(self.rect_img, self.scale)
         self.label_C.setText("mean C: {:.4f}".format(data["mean_C"]))
         self.label_E.setText("mean E: {:.4f}".format(data["mean_E"]))
@@ -614,6 +624,9 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         with open(output_file, 'w') as f:
             f.write(', '.join(str(p) for p in pts))
         self.returnAnalyze.emit(analyze_data)
+        # 關閉通知框
+        msg.accept()
+        QApplication.processEvents() # 強制更新畫面
         self.close()
 
     def on_exit_clicked(self):
