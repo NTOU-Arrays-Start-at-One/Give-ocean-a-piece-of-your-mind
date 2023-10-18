@@ -304,6 +304,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.image_show()
                 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是您的waterNet運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -344,6 +345,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.imgShow2 = cv2.imread(self.imgShow2_path)
             self.image_show()
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是您的colorization運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -354,8 +356,8 @@ class StartPage(QWidget, QtCore.QObject):
             self.capture()
             
         # 設定參數
-        left_source_path:str = os.path.expanduser(self.img_path)
         try:
+            left_source_path:str = os.path.expanduser(self.img_path)
             if self.img_path != None:
                 # lazy loaging
                 # 並設置大小
@@ -381,6 +383,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.image_show()
 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是物件偵測運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是物件偵測運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -421,6 +424,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.analyze_page.show()
 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是有其他路徑問題", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是有其他路徑問題，錯誤訊息如下：")
             print(e)
 
