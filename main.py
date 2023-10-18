@@ -1,9 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget, QComboBox, QFormLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication, QMainWindow, QFileDialog, QMessageBox, QLabel, QHBoxLayout, QTabWidget, QComboBox
 from CC_ui import Ui_MainWindow
 from PyQt5.QtWidgets import QScrollArea
-from PyQt5.QtGui import QImage, QPixmap, QMovie
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt
 import PyQt5.QtCore as QtCore
 import cv2
 import numpy as np
@@ -304,6 +304,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.image_show()
                 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是您的waterNet運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -344,6 +345,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.imgShow2 = cv2.imread(self.imgShow2_path)
             self.image_show()
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是您的colorization運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -354,8 +356,8 @@ class StartPage(QWidget, QtCore.QObject):
             self.capture()
             
         # 設定參數
-        left_source_path:str = os.path.expanduser(self.img_path)
         try:
+            left_source_path:str = os.path.expanduser(self.img_path)
             if self.img_path != None:
                 # lazy loaging
                 # 並設置大小
@@ -381,6 +383,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.image_show()
 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是物件偵測運行有錯誤", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是物件偵測運行有錯誤，錯誤訊息如下：")
             print(e)
             return
@@ -421,6 +424,7 @@ class StartPage(QWidget, QtCore.QObject):
             self.analyze_page.show()
 
         except Exception as e:
+            QMessageBox.information(self, "Error", "請先上傳圖片或是有其他路徑問題", QMessageBox.Ok)
             print("Error: 請先上傳圖片或是有其他路徑問題，錯誤訊息如下：")
             print(e)
 
@@ -596,6 +600,16 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         self.scale = float(tmp)
 
     def return_analyze_and_points(self):
+        # 顯示通知框
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.resize(100, 100)
+        msg.setWindowTitle('通知')
+        msg.setText('函數執行中...')
+        msg.setStandardButtons(QMessageBox.NoButton)
+        msg.show()
+        QApplication.processEvents() # 強制更新畫面
+
         data = CC_IQA.cc_task(self.rect_img, self.scale)
         self.label_C.setText("mean C: {:.4f}".format(data["mean_C"]))
         self.label_E.setText("mean E: {:.4f}".format(data["mean_E"]))
@@ -614,6 +628,9 @@ class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
         with open(output_file, 'w') as f:
             f.write(', '.join(str(p) for p in pts))
         self.returnAnalyze.emit(analyze_data)
+        # 關閉通知框
+        msg.accept()
+        QApplication.processEvents() # 強制更新畫面
         self.close()
 
     def on_exit_clicked(self):
