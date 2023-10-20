@@ -17,7 +17,6 @@ from VideoRecover import Video
 from AnalyzeDisplay import ColorBoardCanvas, ColorBoardDeltaECanvas, tanaAnalyze
 from Webcam import Webcam
 import shutil
-import threading
 
 # 設置環境變數
 from PyQt5.QtCore import QLibraryInfo

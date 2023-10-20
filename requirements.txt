@@ -14,4 +14,3 @@ scipy
 ultralytics
 Pillow
 pytest-shutil
-threading
