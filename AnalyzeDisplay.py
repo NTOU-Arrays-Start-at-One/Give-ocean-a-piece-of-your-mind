@@ -97,13 +97,16 @@ class ColorBoardCanvas(AnalyzeCanvas):
                 self.axes[1].add_patch(plt.Rectangle((x, y), 0.2, 0.2, color=np.array(center_rgb_clean[i * 5 + j]) / 255))
                 self.axes[2].add_patch(plt.Rectangle((x, y), 0.2, 0.2, color=np.array(rgb_list[i * 5 + j]) / 255))
                 # 在方框中心位置添加 RGB 值文字
-                rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
+                rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},
+                                {round(center_rgb[i * 5 + j][2])})"
                 self.axes[0].text(x + 0.1, y + 0.1, rgb_text, color='black', fontsize=8, ha='center',
                                 va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
-                rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},{round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
+                rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},
+                                    {round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
                 self.axes[1].text(x + 0.1, y + 0.1, rgb_clean_text, color='black', fontsize=8, ha='center',
                                 va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
-                rgb_text = f"({round(rgb_list[i * 5 + j][0])},{round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
+                rgb_text = f"({round(rgb_list[i * 5 + j][0])},
+                                {round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
                 self.axes[2].text(x + 0.1, y + 0.1, rgb_text, color='black', fontsize=8, ha='center',
                                 va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
         self.draw()

@@ -23,7 +23,7 @@ def find_result_dir(idx = 0): #　預設在result，並將重複的資料夾用�
         return os.path.join(dir, f"{result_dir}_{idx}")
 
 def save_image_file(file, result_dir = "result", idx = 0): #　預設在result，並將重複的圖片用編號重新命名
-    if not os.path.exists(result_dir):  # 如果文件夹不存在，创建文件夹
+    if not os.path.exists(result_dir):  # 如果文件夾不存在，建立文件夾
         os.makedirs(result_dir)
     if os.path.exists(os.path.join(result_dir, f"{file}.png")):
         idx += 1
@@ -40,7 +40,7 @@ def save_text_file(delta_e, file, result_dir = "result", idx = 0): #　預設在
     # 建立 DataFrame 物件
     df = pd.DataFrame(data, columns=["position", "delta_e"])
     
-    if not os.path.exists(result_dir):  # 如果文件夹不存在，创建文件夹
+    if not os.path.exists(result_dir):  # 如果文件夾不存在，建立文件夾
         os.makedirs(result_dir)
     if os.path.exists(os.path.join(result_dir, f"{file}.xlsx")):
         idx += 1

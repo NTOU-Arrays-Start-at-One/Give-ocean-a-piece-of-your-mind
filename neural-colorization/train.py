@@ -117,7 +117,7 @@ training_generator = data.DataLoader(trainset, **params)
 if args.test_image is not None:
     test_img = Image.open(args.test_image).convert('RGB').resize((256,256))
     test_yuv = rgb2yuv(test_img)
-    test_inf = test_yuv[...,0].reshape(1,1,256,256)
+    test_inf = test_yuv[...,0].reshape((1,1,256,256))
     test_var = Variable(torch.Tensor(test_inf-0.5)).cuda(args.gpu)
 if args.d_init is not None:
     D.load_state_dict(torch.load(args.d_init))
@@ -130,7 +130,7 @@ if args.test_image is not None:
     uv=test_res.cpu().detach().numpy()
     uv[:,0,:,:] *= 0.436
     uv[:,1,:,:] *= 0.615
-    test_yuv = np.concatenate([test_inf,uv],axis=1).reshape(3,256,256)
+    test_yuv = np.concatenate([test_inf,uv],axis=1).reshape((3,256,256))
     test_rgb = yuv2rgb(test_yuv.transpose(1,2,0))
     cv2.imwrite(os.path.join(args.checkpoint_location,'test_init.jpg'),(test_rgb.clip(min=0,max=1)*256)[:,:,[2,1,0]])
 
@@ -179,7 +179,7 @@ for epoch in range(args.epoch):
                 uv=test_res.cpu().detach().numpy()
                 uv[:,0,:,:] *= 0.436
                 uv[:,1,:,:] *= 0.615
-                test_yuv = np.concatenate([test_inf,uv],axis=1).reshape(3,256,256)
+                test_yuv = np.concatenate([test_inf,uv],axis=1).reshape((3,256,256))
                 test_rgb = yuv2rgb(test_yuv.transpose(1,2,0))
                 cv2.imwrite(os.path.join(args.checkpoint_location,'test_epoch_'+str(epoch)+'.jpg'),(test_rgb.clip(min=0,max=1)*256)[:,:,[2,1,0]])
 torch.save(D.state_dict(), os.path.join(args.checkpoint_location,'D_final.pth'))

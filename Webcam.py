@@ -2,7 +2,6 @@ import cv2
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
 
 class Webcam:
     def __init__(self, image_e, color):
