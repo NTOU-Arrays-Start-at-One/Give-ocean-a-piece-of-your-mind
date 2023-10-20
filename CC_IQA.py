@@ -404,18 +404,15 @@ def cc_task(cc_img, scale=0.5):
             axs[1].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(center_rgb_clean[i * 5 + j]) / 255))
             axs[2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
             # 在方框中心位置添加 RGB 值文字
-            rgb_text = f"({round(center_rgb[i * 5 + j][0])},
-                            {round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
+            rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
             axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
                         va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
-            rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},
-                                {round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
+            rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},{round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
             axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center',
                         va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
-            rgb_text = f"({round(rgb_list[i * 5 + j][0])},
-                            {round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
+            rgb_text = f"({round(rgb_list[i * 5 + j][0])},{round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
             axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
                         va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
     axs[0].axis('scaled')
