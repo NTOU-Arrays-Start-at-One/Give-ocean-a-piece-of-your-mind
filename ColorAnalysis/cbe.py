@@ -27,7 +27,7 @@ def find_edge_of_colorboard(im, display = 1):
     edges = cv2.Canny(blurred, 110, 250)
 
     # 尋找輪廓
-    contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # 遍歷所有輪廓
     rect_points = []  # 紀錄矩形的頂點
@@ -85,9 +85,6 @@ def unwarp(img, src, dst, display = 1):
 #   對色板透視校正，將色板抓出。
 #----------------------------------------------------#
 def perspective_correction(im, rect_point, display = 1):
-  #圖片大小
-  w, h = im.shape[0], im.shape[1]
-  
   # 頂點(idx由色板右上開始逆時鐘編號)
   # for i in range(0,len(rect_point)): 
   #   if(i==4): print()
@@ -160,7 +157,7 @@ def rotate(colorBoard):
     angle = 270
   else: angle = 0
 
-  (h, w, d) = colorBoard.shape
+  (h, w, _) = colorBoard.shape
   center = (w // 2, h // 2)
   M = cv2.getRotationMatrix2D(center, angle, 1.0)
   colorBoard = cv2.warpAffine(colorBoard, M, (w, h))

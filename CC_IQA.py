@@ -3,11 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-from scipy.spatial import distance
-from colormath.color_diff import delta_e_cie2000
 from ColorAnalysis import cba  # cba: ColorBlock Analysis
-from ColorAnalysis import fileio as fio # to save file
-from ColorAnalysis import GUI # GUI: Graphical User Interface to show image
 
 ####  The data from https://www.xrite.com/service-support/new_color_specifications_for_colorchecker_sg_and_classic_charts
 CIE_lab_24 = [[37.54, 14.37, 14.92], [64.66, 19.27, 17.5], [49.32, -3.82, -22.54], [43.46, -12.74, 22.72], [54.94, 9.61, -24.79], [70.48, -32.26, -0.37],
@@ -101,7 +97,7 @@ def delta_e_ciede2000(Lab1, Lab2, kL=1, kC=1, kH=1):
         return np.degrees(rad)
 
     # 計算 CIEDE-2000 中的各個參數
-    L_bar = (L1 + L2) / 2
+    #L_bar = (L1 + L2) / 2
     C1 = np.sqrt(a1**2 + b1**2)
     C2 = np.sqrt(a2**2 + b2**2)
     C_bar = (C1 + C2) / 2
@@ -409,13 +405,16 @@ def cc_task(cc_img, scale=0.5):
             axs[2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
             # 在方框中心位置添加 RGB 值文字
             rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
-            axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
             rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},{round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
-            axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
             rgb_text = f"({round(rgb_list[i * 5 + j][0])},{round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
-            axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
     axs[0].axis('scaled')
     axs[1].axis('scaled')
     axs[2].axis('scaled')
