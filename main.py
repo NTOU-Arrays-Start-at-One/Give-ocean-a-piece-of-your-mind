@@ -122,8 +122,10 @@ class StartPage(QWidget, QtCore.QObject):
         # ----------- 按鈕配置 -----------
         
         # 下拉選單
-        self.colorization_selector.addItem("test1")
-        self.colorization_selector.addItem("test2")
+        self.colorization_selector.addItem("ocean")
+        self.colorization_selector.addItem("people")
+        self.colorization_selector.addItem("colorboard")
+        self.colorization_selector.addItem("original")
         self.detection_selector.addItem("fish")
         self.detection_selector.addItem("colorBoard")
         self.detection_selector.addItem("yolov8n")
@@ -196,10 +198,14 @@ class StartPage(QWidget, QtCore.QObject):
     
     def select_colorization(self):
         select = self.colorization_selector.currentText()
-        if select == "water":
+        if select == "ocean":
+            self.colorization_model = "neural-colorization/G_water.pth"
+        elif select == "people":
+            self.colorization_model = "neural-colorization/G_people_v1.pth"
+        elif select == "colorboard":
+            self.colorization_model = "neural-colorization/G_colorboard.pth"
+        elif select == "original":
             self.colorization_model = "neural-colorization/G.pth"
-        elif select == "test2":
-            self.colorization_model = "" # TODO
         self.firstTime_Colorization = True
     
     def select_detection(self):
