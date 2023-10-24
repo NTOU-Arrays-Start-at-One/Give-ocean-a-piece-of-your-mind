@@ -3,11 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-from scipy.spatial import distance
-from colormath.color_diff import delta_e_cie2000
 from ColorAnalysis import cba  # cba: ColorBlock Analysis
-from ColorAnalysis import fileio as fio # to save file
-from ColorAnalysis import GUI # GUI: Graphical User Interface to show image
 
 ####  The data from https://www.xrite.com/service-support/new_color_specifications_for_colorchecker_sg_and_classic_charts
 CIE_lab_24 = [[37.54, 14.37, 14.92], [64.66, 19.27, 17.5], [49.32, -3.82, -22.54], [43.46, -12.74, 22.72], [54.94, 9.61, -24.79], [70.48, -32.26, -0.37],
@@ -101,7 +97,7 @@ def delta_e_ciede2000(Lab1, Lab2, kL=1, kC=1, kH=1):
         return np.degrees(rad)
 
     # 計算 CIEDE-2000 中的各個參數
-    L_bar = (L1 + L2) / 2
+    #L_bar = (L1 + L2) / 2
     C1 = np.sqrt(a1**2 + b1**2)
     C2 = np.sqrt(a2**2 + b2**2)
     C_bar = (C1 + C2) / 2
@@ -154,24 +150,6 @@ def delta_e_ciede2000(Lab1, Lab2, kL=1, kC=1, kH=1):
 
     return Delta_E
 
-def calculate_delta_e(color1, color2):
-    # 將 RGB 轉換為 Lab 色彩空間
-    lab_color1 = rgb_to_lab(color1)
-    lab_color2 = rgb_to_lab(color2)
-    
-    # 計算 Delta E
-    delta_e = delta_e_ciede2000(lab_color1, lab_color2)
-    
-    return delta_e
-
-def rgb_to_lab(rgb_color):
-    # 將 RGB 色彩空間轉換為 XYZ 色彩空間
-    xyz_color = rgb_to_xyz(rgb_color)
-    
-    # 將 XYZ 色彩空間轉換為 Lab 色彩空間
-    lab_color = xyz_to_lab(xyz_color)
-    
-    return lab_color
 
 def rgb_to_xyz(rgb_color):
     # 將 RGB 轉換為 XYZ 色彩空間的矩陣
@@ -225,12 +203,12 @@ def remove_outliers(rgb_array, threshold):
     max_vals_g = np.max(rgb_np[:,:,1])
     max_vals_b = np.max(rgb_np[:,:,2])
 
-    print(f"min_vals_r:{min_vals_r}")
-    print(f"min_vals_g:{min_vals_g}")
-    print(f"min_vals_b:{min_vals_b}")
-    print(f"max_vals_r:{max_vals_r}")
-    print(f"max_vals_g:{max_vals_g}")
-    print(f"max_vals_b:{max_vals_b}")
+    # print(f"min_vals_r:{min_vals_r}")
+    # print(f"min_vals_g:{min_vals_g}")
+    # print(f"min_vals_b:{min_vals_b}")
+    # print(f"max_vals_r:{max_vals_r}")
+    # print(f"max_vals_g:{max_vals_g}")
+    # print(f"max_vals_b:{max_vals_b}")
 
     # 判斷是否為極值
     is_outlier_r = np.logical_or(rgb_np[:,:,0] < min_vals_r + threshold, rgb_np[:,:,0] > max_vals_r - threshold)
@@ -332,9 +310,9 @@ def cc_task(cc_img, scale=0.5):
         #[[r,g,b]*24個]
         
         center_rgb_clean.append(RGB_m_clean)
-        rgb_rgbc_cmp.append(calculate_delta_e(RGB_m, RGB_m_clean))
-        rgb_std_cmp.append(calculate_delta_e(RGB_m, rgb_list[count]))
-        rgbc_std_cmp.append(calculate_delta_e(RGB_m_clean, rgb_list[count]))
+        rgb_rgbc_cmp.append(delta_e_ciede2000(RGB_m, RGB_m_clean))
+        rgb_std_cmp.append(delta_e_ciede2000(RGB_m, rgb_list[count]))
+        rgbc_std_cmp.append(delta_e_ciede2000(RGB_m_clean, rgb_list[count]))
         # LAB_m: 中心點 LAB 值
         LAB_m = rgb2lab(RGB_m)
         #print(f"count: {count}")
@@ -346,11 +324,10 @@ def cc_task(cc_img, scale=0.5):
         mean_E += E
 
         count += 1
-    
     #------------------cie_2000------------------
     #------- 色差比較圖 -------#
     center_rgb_temp = center_rgb.copy()
-    center_rgb_temp.append([0,0,0]) # 25個
+    center_rgb_temp = np.append(center_rgb_temp, [[0,0,0]], axis=0)
     # 改成5x5x3陣列
     center_rgb_2d = np.array(center_rgb_temp).reshape(5,5,3)
     # print(center_rgb_2d)
@@ -396,8 +373,11 @@ def cc_task(cc_img, scale=0.5):
     # 再將 XYZ 值轉換成 LAB 值
     # 再將 LAB 值轉換成 RGB 值
 
+    center_rgb = np.array(center_rgb)
+    center_rgb_clean = np.array(center_rgb_clean)
+    rgb_list = np.array(rgb_list)
     #------------------k-means------------------
-    X = np.array(center_rgb)
+    X = center_rgb
     # k-means 分群
     kmeans = KMeans(n_clusters=5).fit(X)
     # 每個色塊所屬的群組
@@ -425,13 +405,16 @@ def cc_task(cc_img, scale=0.5):
             axs[2].add_patch(plt.Rectangle((x, y), 4, 4, color=np.array(rgb_list[i * 5 + j]) / 255))
             # 在方框中心位置添加 RGB 值文字
             rgb_text = f"({round(center_rgb[i * 5 + j][0])},{round(center_rgb[i * 5 + j][1])},{round(center_rgb[i * 5 + j][2])})"
-            axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[0].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
             rgb_clean_text = f"({round(center_rgb_clean[i * 5 + j][0])},{round(center_rgb_clean[i * 5 + j][1])},{round(center_rgb_clean[i * 5 + j][2])})"
-            axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[1].text(x + 2, y + 2, rgb_clean_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
 
             rgb_text = f"({round(rgb_list[i * 5 + j][0])},{round(rgb_list[i * 5 + j][1])},{round(rgb_list[i * 5 + j][2])})"
-            axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+            axs[2].text(x + 2, y + 2, rgb_text, color='black', fontsize=13, ha='center',
+                        va='center', bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
     axs[0].axis('scaled')
     axs[1].axis('scaled')
     axs[2].axis('scaled')
@@ -440,28 +423,28 @@ def cc_task(cc_img, scale=0.5):
     plt.savefig('res/colorblock.png', dpi=300, bbox_inches='tight')
 
     # 將 Delta E 值和顏色對應的索引轉換為 NumPy 陣列
-    delta_e_values = np.array(rgb_rgbc_cmp)
-    delta_e_values_std = np.array(rgb_std_cmp)
-    delta_e_values_stdc = np.array(rgbc_std_cmp)
+    delta_e_rgb_rgbc = np.array(rgb_rgbc_cmp)
+    delta_e_rgb_std = np.array(rgb_std_cmp)
+    delta_e_rgbc_std = np.array(rgbc_std_cmp)
     color_indices = np.arange(len(rgb_list) - 1)
 
     plt.figure(figsize=(12, 6))
     plt.subplot(131)
-    plt.bar(color_indices, delta_e_values)
+    plt.bar(color_indices, delta_e_rgb_rgbc)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
     plt.title('Colors and Remove outlier Color')
 
     plt.subplot(132)
-    plt.bar(color_indices, delta_e_values_std)
+    plt.bar(color_indices, delta_e_rgb_std)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
     plt.title('Colors and Standard Color')
 
     plt.subplot(133)
-    plt.bar(color_indices, delta_e_values_stdc)
+    plt.bar(color_indices, delta_e_rgbc_std)
     # 設定圖表標籤和標題
     plt.xlabel('Color Index')
     plt.ylabel('Delta E')
@@ -474,4 +457,7 @@ def cc_task(cc_img, scale=0.5):
     mean_E /= 24
     # print("C:{} | E:{} ".format(mean_C, mean_E))
     #print(mean_C, mean_E)
-    return mean_C, mean_E, img_rect_
+    return {"mean_C" : mean_C, "mean_E" : mean_E, "img_rect_" : img_rect_,
+            "center_rgb" : center_rgb, "center_rgb_clean" : center_rgb_clean, "rgb_list" : rgb_list,
+            "delta_e_rgb_rgbc" : delta_e_rgb_rgbc, "delta_e_rgb_std" : delta_e_rgb_std, "delta_e_rgbc_std" : delta_e_rgbc_std,
+            "color_indices" : color_indices}

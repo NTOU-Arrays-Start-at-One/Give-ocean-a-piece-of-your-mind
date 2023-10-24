@@ -1,8 +1,6 @@
-import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors # 表格顏色
 from ColorAnalysis import cba  # cba: ColorBlock Analysis
 from ColorAnalysis import fileio as fio # to save file
 from ColorAnalysis import GUI # GUI: Graphical User Interface to show image
@@ -51,7 +49,7 @@ def colorAnalysis(crop_image):
     plt.show() # 將兩張圖一同顯示
 
     # 造出色彩通道比較圖
-    diff_1 = cba.color_diff_colorboard(standard_val, restored_val) # 造出色差比較圖
+    #diff_1 = cba.color_diff_colorboard(standard_val, restored_val) # 造出色差比較圖
     # fio.save_image_file('diff_1', result_dir) # 儲存色差比較圖
     # fio.save_text_file(diff_1, 'diff_1', result_dir) # 儲存excel文字紀錄
     plt.show() # 將兩張圖一同顯示
@@ -60,7 +58,7 @@ def colorAnalysis(crop_image):
     # 顯示兩色版的差異
     #-------------------------------------------------------------------------#
     # 顯示
-    f, (ax1, ax3) = plt.subplots(1, 2, figsize=(12, 4))
+    _, (ax1, ax3) = plt.subplots(1, 2, figsize=(12, 4))
     ax1.imshow(cv2.cvtColor(standard_unwarp, cv2.COLOR_BGR2RGB))
     ax1.set_title('Standard')
     ax3.imshow(cv2.cvtColor(restored_unwarp, cv2.COLOR_BGR2RGB))
@@ -74,7 +72,7 @@ def colorAnalysis(crop_image):
     # 繪製直方圖
     x = np.arange(0, 25)
     labels = [f"({i//5},{i%5})" for i in range(25)]
-    fig, ax = plt.subplots(figsize=(14, 6))
+    _, ax = plt.subplots(figsize=(14, 6))
     ax.bar(x, delta_e_1.reshape(25), width=0.4, label='delta_e: restored_model')
 
     # 繪製平均值

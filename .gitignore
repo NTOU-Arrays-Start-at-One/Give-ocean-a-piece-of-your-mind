@@ -1,1 +1,3 @@
 *.pt
+detection/yolov8x.pt
+detection/yolov8x-oiv7.pt

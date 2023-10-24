@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
         self.label_3.setGeometry(QtCore.QRect(20, 610, 500, 16))
         self.label_3.setObjectName("label_3")
         self.PB_ok_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.PB_ok_2.setGeometry(QtCore.QRect(bias_width + 505, 750, 140, 23))
+        self.PB_ok_2.setGeometry(QtCore.QRect(bias_width + 485, 740, 180, 32))
         self.PB_ok_2.setObjectName("PB_ok_2")
 
         #self.cc_image = QtWidgets.QLabel(self.centralwidget)
@@ -188,7 +188,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Color Chart Difference by UAC"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Color Chart Difference Calculator"))
         self.label_1.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_1.setText(_translate("MainWindow", "step1: Choose image; "
                                                     "Select the color chart area by clicking four points on the image."))
@@ -200,7 +200,7 @@ class Ui_MainWindow(object):
         self.scale_text.setText(_translate("MainWindow", "0.5"))
         self.PB_rot.setText(_translate("MainWindow", "Rotate 90°"))
         self.PB_ok.setText(_translate("MainWindow", "ok"))
-        self.PB_ok_2.setText(_translate("MainWindow", "Calculate and return points"))
+        self.PB_ok_2.setText(_translate("MainWindow", "Calculate and return"))
         self.label_E.setText(_translate("MainWindow", "mean E: "))
         self.label_3.setFont(QtGui.QFont("Roman times", 9, QtGui.QFont.Bold))
         self.label_3.setText(_translate("MainWindow", "step3: Calculate the difference "
