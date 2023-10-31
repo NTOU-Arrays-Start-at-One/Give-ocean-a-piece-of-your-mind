@@ -1,9 +1,13 @@
+from collections import Counter
 import cv2
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from ColorAnalysis import cba  # cba: ColorBlock Analysis
+from colormath.color_conversions import convert_color
+from colormath.color_objects import sRGBColor, LabColor
+from colormath.color_diff import delta_e_cie2000
 
 ####  The data from https://www.xrite.com/service-support/new_color_specifications_for_colorchecker_sg_and_classic_charts
 CIE_lab_24 = [[37.54, 14.37, 14.92], [64.66, 19.27, 17.5], [49.32, -3.82, -22.54], [43.46, -12.74, 22.72], [54.94, 9.61, -24.79], [70.48, -32.26, -0.37],
@@ -85,106 +89,15 @@ def load_std_ref_LAB(c_type):
     else:
         assert True, "type error"
 
-# 定義 delta_e_ciede2000 函數，用於計算 CIEDE-2000 色差
-def delta_e_ciede2000(Lab1, Lab2, kL=1, kC=1, kH=1):
-    L1, a1, b1 = Lab1
-    L2, a2, b2 = Lab2
+def get_delta_e(color1, color2):
+    #色彩空間轉換(BGR to LAB)  
+    def rgb2lab_cie(rgb):
+        #print(f"Input RGB: {rgb}")
+        return convert_color(sRGBColor(rgb[0], rgb[1], rgb[2]), LabColor)
 
-    def deg_to_rad(deg):
-        return np.radians(deg)
-
-    def rad_to_deg(rad):
-        return np.degrees(rad)
-
-    # 計算 CIEDE-2000 中的各個參數
-    #L_bar = (L1 + L2) / 2
-    C1 = np.sqrt(a1**2 + b1**2)
-    C2 = np.sqrt(a2**2 + b2**2)
-    C_bar = (C1 + C2) / 2
-
-    G = 0.5 * (1 - np.sqrt(C_bar**7 / (C_bar**7 + 25**7)))
-
-    a1_prime = (1 + G) * a1
-    a2_prime = (1 + G) * a2
-
-    C1_prime = np.sqrt(a1_prime**2 + b1**2)
-    C2_prime = np.sqrt(a2_prime**2 + b2**2)
-
-    h1_prime = rad_to_deg(np.arctan2(b1, a1_prime))
-    if h1_prime < 0:
-        h1_prime += 360
-
-    h2_prime = rad_to_deg(np.arctan2(b2, a2_prime))
-    if h2_prime < 0:
-        h2_prime += 360
-
-    Delta_L_prime = L2 - L1
-    Delta_C_prime = C2_prime - C1_prime
-
-    h_diff = h2_prime - h1_prime
-    if abs(h_diff) <= 180:
-        Delta_H_prime = h2_prime - h1_prime
-    elif h_diff > 180:
-        Delta_H_prime = h2_prime - h1_prime - 360
-    else:
-        Delta_H_prime = h2_prime - h1_prime + 360
-
-    Delta_H_prime = 2 * np.sqrt(C1_prime * C2_prime) * np.sin(deg_to_rad(Delta_H_prime) / 2)
-
-    L_bar_prime = (L1 + L2) / 2
-    C_bar_prime = (C1_prime + C2_prime) / 2
-
-    h_bar_prime = (h1_prime + h2_prime) / 2
-    if abs(h1_prime - h2_prime) > 180:
-        h_bar_prime += 180
-
-    T = 1 - 0.17 * np.cos(deg_to_rad(h_bar_prime - 30)) + 0.24 * np.cos(deg_to_rad(2 * h_bar_prime))
-    S = 1 + 0.045 * C_bar_prime
-    R = 2 * np.sqrt(C_bar_prime**7 / (C_bar_prime**7 + 25**7))
-
-    Delta_L_term = Delta_L_prime / (kL * S)
-    Delta_C_term = Delta_C_prime / (kC * S)
-    Delta_H_term = Delta_H_prime / (kH * S)
-
-    Delta_E = np.sqrt(Delta_L_term**2 + Delta_C_term**2 + Delta_H_term**2 + R * Delta_C_term * Delta_H_term)
-
-    return Delta_E
-
-
-def rgb_to_xyz(rgb_color):
-    # 將 RGB 轉換為 XYZ 色彩空間的矩陣
-    rgb_to_xyz_matrix = np.array([[0.4124564, 0.3575761, 0.1804375],
-                                  [0.2126729, 0.7151522, 0.0721750],
-                                  [0.0193339, 0.1191920, 0.9503041]])
-    
-    # 將 RGB 值歸一化為 0-1 的範圍
-    rgb_color = np.array(rgb_color) / 255.0
-    
-    # 將 gamma 矯正應用於 RGB 值
-    rgb_color = np.where(rgb_color <= 0.04045, rgb_color / 12.92, ((rgb_color + 0.055) / 1.055) ** 2.4)
-    
-    # 將 gamma 矯正後的 RGB 值與轉換矩陣相乘，得到 XYZ 值
-    xyz_color = np.dot(rgb_to_xyz_matrix, rgb_color)
-    
-    return xyz_color
-
-def xyz_to_lab(xyz_color):
-    # 定義白點的 XYZ 值
-    reference_white = [0.95047, 1.00000, 1.08883]
-    
-    # 歸一化 XYZ 值除以白點的 XYZ 值，得到 XYZ 的百分比
-    xyz_percentage = xyz_color / reference_white
-    
-    # 定義 Lab 轉換的函數
-    def lab_func(t):
-        return np.where(t > (6 / 29) ** 3, t ** (1 / 3), (1 / 3) * ((29 / 6) ** 2) * t + 4 / 29)
-    
-    # 將 XYZ 的百分比轉換為 Lab 值
-    lab_color = np.array([116 * lab_func(xyz_percentage[1]) - 16,
-                          500 * (lab_func(xyz_percentage[0]) - lab_func(xyz_percentage[1])),
-                          200 * (lab_func(xyz_percentage[1]) - lab_func(xyz_percentage[2]))])
-    
-    return lab_color
+    # 計算CIEDE2000的色差
+    delta_e_2000 = delta_e_cie2000(rgb2lab_cie(color1), rgb2lab_cie(color2))
+    return delta_e_2000
 
 def remove_outliers(rgb_array, threshold):
     rgb_np = np.array(rgb_array)
@@ -297,6 +210,18 @@ def cc_task(cc_img, scale=0.5):
 
         cc_block_clean = cc_block.copy()
         cc_block_clean = remove_outliers(cc_block_clean, 1)
+
+        kmeans_ori = KMeans(n_clusters=5, random_state=0, n_init='auto').fit(cc_block.reshape(-1, 3))
+        kmeans_ori_clean = KMeans(n_clusters=5, random_state=0, n_init='auto').fit(remove_outliers(cc_block, 1).reshape(-1, 3))
+        kmeans_ori_label = kmeans_ori.labels_
+        kmeans_ori_label_clean = kmeans_ori_clean.labels_
+        cluster_sizes_ori = Counter(kmeans_ori_label)
+        cluster_sizes_ori_clean = Counter(kmeans_ori_label_clean)
+        largest_cluster_ori = max(cluster_sizes_ori, key=cluster_sizes_ori.get)
+        largest_cluster_ori_clean = max(cluster_sizes_ori_clean, key=cluster_sizes_ori_clean.get)
+        representative_color_ori = kmeans_ori.cluster_centers_[largest_cluster_ori]
+        representative_color_ori_clean = kmeans_ori_clean.cluster_centers_[largest_cluster_ori_clean]
+
         R_mean = np.mean(cc_block[:, :, 0])
         G_mean = np.mean(cc_block[:, :, 1])
         B_mean = np.mean(cc_block[:, :, 2])
@@ -310,9 +235,9 @@ def cc_task(cc_img, scale=0.5):
         #[[r,g,b]*24個]
         
         center_rgb_clean.append(RGB_m_clean)
-        rgb_rgbc_cmp.append(delta_e_ciede2000(RGB_m, RGB_m_clean))
-        rgb_std_cmp.append(delta_e_ciede2000(RGB_m, rgb_list[count]))
-        rgbc_std_cmp.append(delta_e_ciede2000(RGB_m_clean, rgb_list[count]))
+        rgb_rgbc_cmp.append(get_delta_e(representative_color_ori, representative_color_ori_clean))
+        rgb_std_cmp.append(get_delta_e(representative_color_ori, rgb_list[count]))
+        rgbc_std_cmp.append(get_delta_e(representative_color_ori_clean, rgb_list[count]))
         # LAB_m: 中心點 LAB 值
         LAB_m = rgb2lab(RGB_m)
         #print(f"count: {count}")
@@ -376,16 +301,8 @@ def cc_task(cc_img, scale=0.5):
     center_rgb = np.array(center_rgb)
     center_rgb_clean = np.array(center_rgb_clean)
     rgb_list = np.array(rgb_list)
-    #------------------k-means------------------
-    X = center_rgb
-    # k-means 分群
-    kmeans = KMeans(n_clusters=5).fit(X)
-    # 每個色塊所屬的群組
-    labels = kmeans.labels_
-    # 創建圖表
-    grid = plt.GridSpec(6, 6)
 
-    fig, axs = plt.subplots(1, 3, figsize=(24, 8))
+    _, axs = plt.subplots(1, 3, figsize=(24, 8))
 
     #------------------k-means------------------
     #------------------每一點的rgb值與色差------------------
