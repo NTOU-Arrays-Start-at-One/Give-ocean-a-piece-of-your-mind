@@ -281,7 +281,7 @@ class StartPage(QWidget, QtCore.QObject):
 
             #使用subprocess.call()來呼叫inference.py程式
             subprocess.call([
-                "python3", inference_path,
+                "python", inference_path,
                 "--source", source_path,
                 "--weights", weights_path,
                 "--output", output_path,
@@ -330,7 +330,7 @@ class StartPage(QWidget, QtCore.QObject):
 
             #使用subprocess.call()來呼叫colorization.py程式
             subprocess.call([
-                "python3", colorization_path,
+                "python", colorization_path,
                 "-i", source_path,
                 "-m", weights_path,
                 "-o", output_path,
