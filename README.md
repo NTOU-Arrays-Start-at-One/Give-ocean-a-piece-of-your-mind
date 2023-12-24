@@ -5,14 +5,13 @@
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README_zh_TW.md">🇹🇼繁體中文</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README.md">🌏English</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues">❓issues</a> |
-    <a href="#">📝Paper Coming Soon</a>
+    <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494">📝Paper</a>
   </div>
   <br>
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/assets/75748924/53e3f54e-0de8-4751-ac07-02628458ac09" alt="badge" width="700">
   <br>
   <div>
-    <a href="https://app.codacy.com/gh/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/7d2de1a21412457b83366b5e822cdfac">
-  </a>
+    <a href="https://app.codacy.com/gh/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/7d2de1a21412457b83366b5e822cdfac"></a>
     <img alt="Using Python version" src="https://img.shields.io/badge/python-3.8.10-blue.svg">
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind">
   </div>
@@ -24,8 +23,16 @@ This system is dedicated to the sustainable development of the ocean, combining 
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
 </div>
 
+## News📢
+**[2023/12/15] The paper is officially online. For details, please check [IEEE Xplore](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494).**
+
+## Work in progress📋
+- [x] **Modifying WaterNet to the U-Net architecture and observing its performance. For details, please check the [`dev`](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/tree/dev) branch.**
+- [ ] **Transfer the project to the new research team.**
+
 ## Paper📝
-Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques, 2023 IEEE International Conference on Marine Artificial Intelligence and Law (IEEE ICMAIL 2023).
+**Yi Lin; Chung-Wei Hung; Yu-Jie Wang; Chih-Chia Liao; Yu-Shiuan Tsai,
+ "Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques," 2023 IEEE International Conference on Marine Artificial Intelligence and Law (ICMAIL) [IEEE Xplore](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494)**
 
 ## Advantages
 +   **Multimedia Support**: Capable of loading images, videos, and web camera feeds.
@@ -122,7 +129,24 @@ Through YOLO v8 object detection, we can identify various objects, fish species,
   - [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git): Automatic color board capture and analysis.
   - [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git): Automatic color board calibration and analysis.
 
-## Code References
+## Citations
+If you find our work helpful in your research, please consider citing [this paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494). You can use the following BibTeX entry:
+```
+@INPROCEEDINGS{10347502,
+  author={Lin, Yi and Hung, Chung-Wei and Wang, Yu-Jie and Liao, Chih-Chia and Tsai, Yu-Shiuan},
+  booktitle={2023 IEEE International Conference on Marine Artificial Intelligence and Law (ICMAIL)}, 
+  title={Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques}, 
+  year={2023},
+  pages={48-53},
+  doi={10.1109/ICMAIL59311.2023.10347502}}
+```
+
+## Acknowledgments
+The study is primarily built upon the secondary development of the following open-source projects. We express our gratitude to the associated projects and research developers:
 -   [WaterNet](https://github.com/tnwei/waternet)
 -   [neural-colorization](https://github.com/zeruniverse/neural-colorization)
 -   [YOLO v8](https://github.com/ultralytics/ultralytics)
+
+Research supported by Ministry of Science and Technology with the grant number MOST-110-2634-F-019-001 - and National Science and Technology Council with the grant number NSTC 111-2634-F-019-001 -.
+
+Furthermore, we appreciate the computational resources and guidance provided by the NTOU CSE Big Data and Deep Learning Lab, as well as the training data provided by the NTOU EE Smart Living Technology Lab.
