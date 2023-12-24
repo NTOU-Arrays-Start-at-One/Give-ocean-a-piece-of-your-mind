@@ -5,7 +5,7 @@
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README_zh_TW.md">🇹🇼繁體中文</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/README.md">🌏English</a> |
     <a href="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/issues">❓issues</a> |
-    <a href="#">📝論文準備中</a>
+    <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494">📝論文</a>
   </div>
   <br>
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/assets/75748924/53e3f54e-0de8-4751-ac07-02628458ac09" alt="badge" width="700">
@@ -23,9 +23,16 @@
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/9.png?raw=true" alt="frame9125" width="600">
 </div>
 
+## 最新消息📢
+**[2023/12/15] 論文正式上線。詳情請查閱 [IEEE Xplore](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494)。**
+
+## 進行中的工作📋
+- [x] **將 WaterNet 修改為 U-Net 架構，並觀察其表現。詳情請查閱 [`dev`](https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/tree/dev) 分支。**
+- [ ] **將專案移交至新研究團隊。**
+
 ## 論文📝
-'Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques,' 
-2023 IEEE International Conference on Marine Artificial Intelligence and Law (IEEE ICMAIL 2023).
+ **林一; 洪崇維; 王裕傑; 廖致嘉; 蔡宇軒,
+ "Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques," 2023 IEEE International Conference on Marine Artificial Intelligence and Law (ICMAIL) [IEEE Xplore](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494)**
 
 ## 特色
 +   **多媒體支援**：能夠載入圖片、影片、網路視訊鏡頭。
@@ -55,7 +62,7 @@
   <img src="https://github.com/NTOU-Arrays-Start-at-One/Give-ocean-a-piece-of-your-mind/blob/main/image/6.png?raw=true" alt="frame9125" width="250">
 </div>
 
-## Installation
+## 環境建置
 
 +   若要在您的本地端執行此專案，請依照以下步驟進行：
 
@@ -123,7 +130,23 @@ WaterNet是一個基於卷積神經網絡的模型，可以減少水下光散射
   - [waternet_fasterRCNN](https://github.com/NTOU-Arrays-Start-at-One/waternet_fasterRCNN.git)：色板自動擷取與分析
   - [Perspective-control-and-Color-testing](https://github.com/NTOU-Arrays-Start-at-One/Perspective-control-and-Color-testing.git)：色板自動校正與分析
 
-## 參考程式碼
+## 引用
+如果您覺得我們的工作對您的研究有幫助，請考慮引用[該論文](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10347502&isnumber=10347494)。您可以使用以下的 BibTeX 條目：
+```
+@INPROCEEDINGS{10347502,
+  author={Lin, Yi and Hung, Chung-Wei and Wang, Yu-Jie and Liao, Chih-Chia and Tsai, Yu-Shiuan},
+  booktitle={2023 IEEE International Conference on Marine Artificial Intelligence and Law (ICMAIL)}, 
+  title={Enhancing Underwater Images: Automatic Colorization using Deep Learning and Image Enhancement Techniques}, 
+  year={2023},
+  pages={48-53},
+  doi={10.1109/ICMAIL59311.2023.10347502}}
+```
+## 致謝
+該研究主要基於以下開源項目的二次開發。在此，我們對相關的項目和研究開發人員表示感謝：
 -   [WaterNet](https://github.com/tnwei/waternet)
 -   [neural-colorization](https://github.com/zeruniverse/neural-colorization)
 -   [YOLO v8](https://github.com/ultralytics/ultralytics)
+
+該研究得到科技部資助，資助編號為MOST-110-2634-F-019-001，以及國家科學及技術委員會資助，資助編號為NSTC 111-2634-F-019-001。
+
+此外，我們感謝國立海洋大學資訊工程學系大數據與深度學習實驗室提供的運算資源與指導，以及電機工程學系智慧生活科技實驗室提供的訓練資料。
