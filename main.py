@@ -244,93 +244,69 @@ class StartPage(QWidget, QtCore.QObject):
         self.imageRestored = self.imageOriginal.copy()
         
         
-    def use_waterNet(self):
+    def execute_model(self, model_type, script_path, source_path, weights_path, output_path):
+        """執行指定的模型，並顯示處理過程中的載入圖像"""
+        
+        def run_subprocess():
+            # 使用 subprocess 執行模型的推論腳本
+            subprocess.call([
+                "python", script_path,
+                "-i" if model_type == "colorization" else "--source", source_path,
+                "-m" if model_type == "colorization" else "--weights", weights_path,
+                "-o" if model_type == "colorization" else "--output", output_path,
+                "--gpu", "-1" if model_type == "colorization" else "",
+            ])
+        
         # 鏡頭處理
         if self.webcam_opened:
             self.capture()
 
-        def call_inference(): # inference.py (WaterNet)
-            # 設定參數
-            inference_path = os.path.expanduser("waternet/inference.py")
-            source_path = os.path.expanduser(self.img_path)
-            weights_path = os.path.expanduser("waternet/weights/last.pt")
-            output_path = os.path.expanduser('res/')
-
-            #使用subprocess.call()來呼叫inference.py程式
-            subprocess.call([
-                "python3", inference_path,
-                "--source", source_path,
-                "--weights", weights_path,
-                "--output", output_path,
-            ])
-        try:
-            if self.firstTime_WaterNet == True and self.img_path != None:
-                
-                # lazy loaging
-                # 並設置大小
-                self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-                QApplication.processEvents() # 強制更新畫面
-
-                # 運行waterNet
-                call_inference()
-                self.firstTime_WaterNet = False
-                # 取得self.img_path的檔名
-                name = os.path.basename(self.img_path)
-                
-                # 將檔名改成 waterNet.jpg 以符合 imageRestored_path的預設位置
-                shutil.copy('res/'+name, 'res/waterNet.jpg')
-
-            self.imageRestored_path = 'res/waterNet.jpg'
-            self.imageRestored = cv2.imread(self.imageRestored_path)
-            # 顯示對比畫面
-            self.image_show()
-                
-        except Exception as e:
-            QMessageBox.information(self, "Error", "請先上傳圖片或是您的waterNet運行有錯誤", QMessageBox.Ok)
-            print("Error: 請先上傳圖片或是您的waterNet運行有錯誤，錯誤訊息如下：")
-            print(e)
+        # 確保圖片路徑存在
+        if self.img_path is None:
+            QMessageBox.information(self, "Error", f"請先上傳圖片或是您的{model_type}運行有錯誤", QMessageBox.Ok)
             return
+
+        try:
+            # 設置載入圖像
+            self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+            QApplication.processEvents()  # 強制更新畫面
+
+            # 執行推論
+            run_subprocess()
+            
+            # 更新結果路徑和顯示圖像
+            self.imageRestored_path = output_path
+            self.imageRestored = cv2.imread(self.imageRestored_path)
+            self.image_show()
+        
+        except Exception as e:
+            QMessageBox.information(self, "Error", f"請先上傳圖片或是您的{model_type}運行有錯誤", QMessageBox.Ok)
+            print(f"Error: 請先上傳圖片或是您的{model_type}運行有錯誤，錯誤訊息如下：")
+            print(e)
+
+    def use_waterNet(self):
+        # 呼叫通用執行模型的函數，並傳入 waterNet 的相關參數
+        if self.firstTime_WaterNet:
+            self.execute_model(
+                model_type="waterNet",
+                script_path="waternet/inference.py",
+                source_path=os.path.expanduser(self.img_path),
+                weights_path="waternet/weights/last.pt",
+                output_path='res/waterNet.jpg'
+            )
+            self.firstTime_WaterNet = False
 
     def use_colorization(self):
-        # 鏡頭處理
-        if self.webcam_opened:
-            self.capture()
-
-        def call_colorization():
-            # 設定參數
-            colorization_path = os.path.expanduser("neural-colorization/colorize.py")
-            
-            source_path = os.path.expanduser(self.img_path)
-            # weights_path = os.path.expanduser("neural-colorization/G.pth")
-            weights_path = self.colorization_model
-            output_path = os.path.expanduser("res/colorization.jpg")
-
-            #使用subprocess.call()來呼叫colorization.py程式
-            subprocess.call([
-                "python3", colorization_path,
-                "-i", source_path,
-                "-m", weights_path,
-                "-o", output_path,
-                "--gpu", "-1",
-            ])
-        try:
-            if self.firstTime_Colorization == True and self.img_path != None:
-                # lazy loaging
-                # 並設置大小
-                self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-                QApplication.processEvents() # 強制更新畫面
-
-                # 運行colorization
-                call_colorization()
-                self.firstTime_Colorization = False
-            self.imageRestored_path = 'res/colorization.jpg'
-            self.imageRestored = cv2.imread(self.imageRestored_path)
-            self.image_show()
-        except Exception as e:
-            QMessageBox.information(self, "Error", "請先上傳圖片或是您的colorization運行有錯誤", QMessageBox.Ok)
-            print("Error: 請先上傳圖片或是您的colorization運行有錯誤，錯誤訊息如下：")
-            print(e)
-            return
+        # 呼叫通用執行模型的函數，並傳入 colorization 的相關參數
+        if self.firstTime_Colorization:
+            self.execute_model(
+                model_type="colorization",
+                script_path="neural-colorization/colorize.py",
+                source_path=os.path.expanduser(self.img_path),
+                weights_path=self.colorization_model,
+                output_path="res/colorization.jpg"
+            )
+            self.firstTime_Colorization = False
     
     def use_detection(self):
         # 鏡頭處理
