@@ -27,6 +27,12 @@ os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = QLibraryInfo.location(
 class StartPage(QWidget, QtCore.QObject):
     image_uploaded = QtCore.pyqtSignal(str)
 
+    # 常數定義
+    DEMO_WINDOW_SIZE = (801, 453)
+    MAIN_WINDOW_SIZE = (1900, 1060)
+    COLOR_BOARD_SIZE = (450, 450)
+    TAB_SIZE = (1875, 500)
+    
     def __init__(self):
         super().__init__()
         self.init_models()
@@ -44,14 +50,14 @@ class StartPage(QWidget, QtCore.QObject):
         self.firstTime_Colorization = True
         self.firstTime_Detection = True
         self.webcam_opened = False
-        self.DEMO_SIZE = (801, 453)
-        self.MAIN_SIZE = (1900, 1060)
+        self.DEMO_SIZE = StartPage.DEMO_WINDOW_SIZE
+        self.MAIN_SIZE = StartPage.MAIN_WINDOW_SIZE
 
     def init_ui(self):
         self.imageMainPage = QLabel(self)
-        self.imageMainPage.setFixedSize(801, 453)
+        self.imageMainPage.setFixedSize(self.DEMO_SIZE[0], self.DEMO_SIZE[1])
         self.imageColorBoard = QLabel(self)
-        self.imageColorBoard.setPixmap(QPixmap('Standard.png').scaled(450, 450))
+        self.imageColorBoard.setPixmap(QPixmap('Standard.png').scaled(StartPage.COLOR_BOARD_SIZE[0], StartPage.COLOR_BOARD_SIZE[1]))
         self.imageColorBlockAnalysis = QLabel(self)
 
     def setup_buttons(self):
@@ -88,7 +94,7 @@ class StartPage(QWidget, QtCore.QObject):
 
     def setup_tabs(self):
         self.tab_widget = QTabWidget()
-        self.tab_widget.setFixedSize(1875, 500)
+        self.tab_widget.setFixedSize(StartPage.TAB_SIZE[0], StartPage.TAB_SIZE[1])
         self.setup_tab3()
         self.setup_tab4()
         self.setup_tab5()
