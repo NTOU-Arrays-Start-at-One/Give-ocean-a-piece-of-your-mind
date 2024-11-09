@@ -38,15 +38,13 @@ class StartPage(QWidget, QtCore.QObject):
         
         # 設置物件
         # 主圖片
-        self.image_e = QLabel(self)
-        self.image_e.setFixedSize(801, 453)
+        self.imageMainPage = QLabel(self)
+        self.imageMainPage.setFixedSize(801, 453)
         
-        # self.imgShow1 原圖片
-        # self.imgShow2 被還原的圖片
+        # self.imageOriginal 原圖片
+        # self.imageRestored 被還原的圖片
         # self.img_path 原圖片的路徑
-        # self.imgShow2_path 被還原的圖片的路徑
-        # self.videoShow_path 原影片的路徑
-        # self.videoShow2_path 被還原的影片的路徑
+        # self.imageRestored_path 被還原的圖片的路徑
 
         # 當原圖已經被還原，不需要再還原一次
         self.firstTime_WaterNet = True
@@ -60,40 +58,40 @@ class StartPage(QWidget, QtCore.QObject):
         self.DEMO_SIZE = (801, 453)
         self.MAIN_SIZE = (1900, 1060)
 
-        # 指令與切換按鈕a, b, c, d
-        button_a = QPushButton('waterNet', self)
-        button_b = QPushButton('colorization', self)
-        button_c = QPushButton('open image', self)
-        button_d = QPushButton('analyze', self)
-        button_e = QPushButton('detection',self)
-        button_g = QPushButton('open video', self)
-        button_h = QPushButton('webcam', self)
+        # 指令與切換按鈕
+        buttonWaterNet = QPushButton('waterNet', self)
+        buttonColorization = QPushButton('colorization', self)
+        buttonOpenImage = QPushButton('open image', self)
+        buttonAnalyze = QPushButton('analyze', self)
+        buttonDetection = QPushButton('detection',self)
+        buttonOpenVideo = QPushButton('open video', self)
+        buttonWebcam = QPushButton('webcam', self)
 
         self.colorization_selector = QComboBox(self)
         self.detection_selector = QComboBox(self)
         self.webcam_selector = QComboBox(self)
         
         # 副圖片
-        self.image_f = QLabel(self)
-        self.image_f.setPixmap(QPixmap('Standard.png').scaled(450,450))
-        self.image_g = QLabel(self)
+        self.imageColorBoard = QLabel(self)
+        self.imageColorBoard.setPixmap(QPixmap('Standard.png').scaled(450,450))
+        self.imageColorBlockAnalysis = QLabel(self)
 
         # 版面配置
         layout = QHBoxLayout()
         layout_left = QVBoxLayout()
-        layout_left.addWidget(self.image_e)
+        layout_left.addWidget(self.imageMainPage)
         layout_right = QHBoxLayout()
 
         # ----------- 按鈕配置 -----------
         # 建立按鈕和下拉選擇框，並使其對齊
         buttons_and_selectors = [
-            (button_a, None),  # 填充空白
-            (button_b, self.colorization_selector),
-            (button_c, None),  # 填充空白
-            (button_d, None),  # 填充空白
-            (button_g, None),  # 填充空白
-            (button_e, self.detection_selector),
-            (button_h, self.webcam_selector)   
+            (buttonWaterNet, None),  # 填充空白
+            (buttonColorization, self.colorization_selector),
+            (buttonOpenImage, None),  # 填充空白
+            (buttonAnalyze, None),  # 填充空白
+            (buttonOpenVideo, None),  # 填充空白
+            (buttonDetection, self.detection_selector),
+            (buttonWebcam, self.webcam_selector)   
         ]
 
         # 取得按鈕和下拉選擇框對的最大寬度
@@ -113,8 +111,8 @@ class StartPage(QWidget, QtCore.QObject):
 
         layout_left.addLayout(button_selector_layout)
 
-        layout_right.addWidget(self.image_f)
-        layout_right.addWidget(self.image_g)
+        layout_right.addWidget(self.imageColorBoard)
+        layout_right.addWidget(self.imageColorBlockAnalysis)
         layout_right.addStretch()
 
         layout.addLayout(layout_left)
@@ -188,13 +186,13 @@ class StartPage(QWidget, QtCore.QObject):
         self.setFixedSize(self.MAIN_SIZE[0], self.MAIN_SIZE[1])
 
         # 點擊事件
-        button_a.clicked.connect(self.use_waterNet)
-        button_b.clicked.connect(self.use_colorization)
-        button_c.clicked.connect(self.open_image)
-        button_d.clicked.connect(self.open_Analyze)
-        button_e.clicked.connect(self.use_detection)
-        button_g.clicked.connect(self.open_video)
-        button_h.clicked.connect(self.use_webcam)
+        buttonWaterNet.clicked.connect(self.use_waterNet)
+        buttonColorization.clicked.connect(self.use_colorization)
+        buttonOpenImage.clicked.connect(self.open_image)
+        buttonAnalyze.clicked.connect(self.open_Analyze)
+        buttonDetection.clicked.connect(self.use_detection)
+        buttonOpenVideo.clicked.connect(self.open_video)
+        buttonWebcam.clicked.connect(self.use_webcam)
     
     def select_colorization(self):
         select = self.colorization_selector.currentText()
@@ -234,20 +232,20 @@ class StartPage(QWidget, QtCore.QObject):
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
         self.firstTime_Detection = True
-        self.imgShow2_path = ''
+        self.imageRestored_path = ''
         # 重置滑鼠追蹤事件
-        self.image_e.setMouseTracking(False)
+        self.imageMainPage.setMouseTracking(False)
         
         if not self.webcam_opened:
-            # 創建一個Webcam對象，將self.image_e傳入
-            self.webcam = Webcam(self.image_e, self.webcam_color)
+            # 創建一個Webcam對象，將self.imageMainPage傳入
+            self.webcam = Webcam(self.imageMainPage, self.webcam_color)
             self.webcam.start_capture()
             self.webcam_opened = True
         else:
             # 如果Webcam已經開啟，可以在這裡執行關閉Webcam的操作
             self.webcam.stop_capture()
             self.webcam_opened = False
-            self.webcam = Webcam(self.image_e, self.webcam_color)
+            self.webcam = Webcam(self.imageMainPage, self.webcam_color)
             self.webcam.start_capture()
             self.webcam_opened = True
 
@@ -262,9 +260,9 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 更新 img_path
         self.img_path = webcam_image_path
-        self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-        self.image_e.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-        self.imgShow2 = self.imgShow1.copy()
+        self.imageOriginal = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+        self.imageMainPage.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+        self.imageRestored = self.imageOriginal.copy()
         
         
     def use_waterNet(self):
@@ -291,7 +289,7 @@ class StartPage(QWidget, QtCore.QObject):
                 
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行waterNet
@@ -300,11 +298,11 @@ class StartPage(QWidget, QtCore.QObject):
                 # 取得self.img_path的檔名
                 name = os.path.basename(self.img_path)
                 
-                # 將檔名改成 waterNet.jpg 以符合 imgShow2_path的預設位置
+                # 將檔名改成 waterNet.jpg 以符合 imageRestored_path的預設位置
                 shutil.copy('res/'+name, 'res/waterNet.jpg')
 
-            self.imgShow2_path = 'res/waterNet.jpg'
-            self.imgShow2 = cv2.imread(self.imgShow2_path)
+            self.imageRestored_path = 'res/waterNet.jpg'
+            self.imageRestored = cv2.imread(self.imageRestored_path)
             # 顯示對比畫面
             self.image_show()
                 
@@ -340,14 +338,14 @@ class StartPage(QWidget, QtCore.QObject):
             if self.firstTime_Colorization == True and self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
                 # 運行colorization
                 call_colorization()
                 self.firstTime_Colorization = False
-            self.imgShow2_path = 'res/colorization.jpg'
-            self.imgShow2 = cv2.imread(self.imgShow2_path)
+            self.imageRestored_path = 'res/colorization.jpg'
+            self.imageRestored = cv2.imread(self.imageRestored_path)
             self.image_show()
         except Exception as e:
             QMessageBox.information(self, "Error", "請先上傳圖片或是您的colorization運行有錯誤", QMessageBox.Ok)
@@ -366,11 +364,11 @@ class StartPage(QWidget, QtCore.QObject):
             if self.img_path != None:
                 # lazy loaging
                 # 並設置大小
-                self.image_e.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+                self.imageMainPage.setPixmap(QPixmap('res/loading.jpeg').scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
                 QApplication.processEvents() # 強制更新畫面
 
-                if self.imgShow2_path != '':
-                    right_source_path:str = os.path.expanduser(self.imgShow2_path)
+                if self.imageRestored_path != '':
+                    right_source_path:str = os.path.expanduser(self.imageRestored_path)
                     results = self.yoloModel([left_source_path, right_source_path])
                 else:
                     results = self.yoloModel(left_source_path)
@@ -378,12 +376,12 @@ class StartPage(QWidget, QtCore.QObject):
                 img_left_array = results[0].plot()
                 img_left = Image.fromarray(img_left_array)
                 img_left = img_left.resize((self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-                self.imgShow1 = np.array(img_left)
-                if self.imgShow2_path != '':
+                self.imageOriginal = np.array(img_left)
+                if self.imageRestored_path != '':
                     img_right_array = results[1].plot()
                     img_right = Image.fromarray(img_right_array)
                     img_right = img_right.resize((self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-                    self.imgShow2 = np.array(img_right)
+                    self.imageRestored = np.array(img_right)
                 self.firstTime_Detection = False
             self.image_show()
 
@@ -407,24 +405,24 @@ class StartPage(QWidget, QtCore.QObject):
             return
         if openfile_name[0] != '':
             self.img_path = openfile_name[0]
-            self.imgShow1 = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-            self.image_e.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
-            self.imgShow2 = self.imgShow1.copy()
+            self.imageOriginal = cv2.resize(cv2.imread(self.img_path), (self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+            self.imageMainPage.setPixmap(QPixmap(self.img_path).scaled(self.DEMO_SIZE[0], self.DEMO_SIZE[1]))
+            self.imageRestored = self.imageOriginal.copy()
             # 輸入新圖片，所以將還原次數重置
             self.firstTime_WaterNet = True
             self.firstTime_Colorization = True
             self.firstTime_Detection = True
-            self.imgShow2_path = ''
+            self.imageRestored_path = ''
             # 重置滑鼠追蹤事件
-            self.image_e.setMouseTracking(False)
+            self.imageMainPage.setMouseTracking(False)
 
     def open_Analyze(self):
         try:
             self.analyze_page = Analyze(self)
-            if self.imgShow2_path == '':
+            if self.imageRestored_path == '':
                 self.image_uploaded.emit(self.img_path)
             else:
-                self.image_uploaded.emit(self.imgShow2_path)
+                self.image_uploaded.emit(self.imageRestored_path)
             self.analyze_page.returnAnalyze.connect(self.get_return_data)  # 連接信號和槽
             self.analyze_page.show()
 
@@ -444,17 +442,17 @@ class StartPage(QWidget, QtCore.QObject):
     def update_image(self):
         pixmap = QPixmap('res/delta_e.png')
         scaled_pixmap = pixmap.scaled(435, 435, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.image_g.setPixmap(scaled_pixmap)
+        self.imageColorBlockAnalysis.setPixmap(scaled_pixmap)
         # 立即更新畫面
         QApplication.processEvents()
 
     def image_show(self):
-        if self.imgShow2_path != '':
-            self.imgShow2 = cv2.resize(
-                self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
+        if self.imageRestored_path != '':
+            self.imageRestored = cv2.resize(
+                self.imageRestored, (self.imageOriginal.shape[1], self.imageOriginal.shape[0]))
 
             # 生成一條紅色的線
-            height, width, channels = self.imgShow1.shape
+            height, width, channels = self.imageOriginal.shape
             line_thickness = 2
             line_length = int(width / 2)
             line_color = (0, 0, 255)  # BGR格式，此處為紅色
@@ -462,21 +460,21 @@ class StartPage(QWidget, QtCore.QObject):
             line_start = (line_x, 0)
             line_end = (line_x, height)
 
-            # 生成一張空白的黑色圖片，大小與self.imgShow1相同
+            # 生成一張空白的黑色圖片，大小與self.imageOriginal相同
             merged_image = np.zeros((height, width, channels), dtype=np.uint8)
 
-            # 將self.imgShow1與self.imgShow2分別放在空白圖片的左半邊與右半邊
-            merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
-            merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
+            # 將self.imageOriginal與self.imageRestored分別放在空白圖片的左半邊與右半邊
+            merged_image[:, :line_end[0], :] = self.imageOriginal[:, :line_end[0], :]
+            merged_image[:, line_end[0]:, :] = self.imageRestored[:, line_end[0]:, :]
 
             # 設置滑鼠追蹤事件
-            self.image_e.setMouseTracking(True)
-            self.image_e.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
+            self.imageMainPage.setMouseTracking(True)
+            self.imageMainPage.mouseMoveEvent = self.on_mouse_move  # 設置滑鼠移動事件的回傳函數
 
             cv2.line(merged_image, line_start, line_end,
                     line_color, line_thickness)
         else:
-            merged_image = self.imgShow1.copy()
+            merged_image = self.imageOriginal.copy()
 
         # 將圖片色彩空間從BGR轉換成RGB
         merged_image = cv2.cvtColor(merged_image, cv2.COLOR_BGR2RGB)
@@ -488,7 +486,7 @@ class StartPage(QWidget, QtCore.QObject):
                       bytesPerLine, QImage.Format_RGB888)
 
         # 將QImage格式的圖片顯示出來
-        self.image_e.setPixmap(QPixmap.fromImage(qImg))
+        self.imageMainPage.setPixmap(QPixmap.fromImage(qImg))
 
     def on_mouse_move(self, event):
         # 取得滑鼠位置
@@ -497,15 +495,15 @@ class StartPage(QWidget, QtCore.QObject):
 
         # 更新線的位置
         line_start = (line_x, 0)
-        line_end = (line_x, self.image_e.pixmap().height())  # 使用image_e的高度
+        line_end = (line_x, self.imageMainPage.pixmap().height())  # 使用imageMainPage的高度
 
         # 更新 merged_image
-        self.imgShow2 = cv2.resize(
-            self.imgShow2, (self.imgShow1.shape[1], self.imgShow1.shape[0]))
+        self.imageRestored = cv2.resize(
+            self.imageRestored, (self.imageOriginal.shape[1], self.imageOriginal.shape[0]))
 
-        merged_image = np.zeros_like(self.imgShow1)
-        merged_image[:, :line_end[0], :] = self.imgShow1[:, :line_end[0], :]
-        merged_image[:, line_end[0]:, :] = self.imgShow2[:, line_end[0]:, :]
+        merged_image = np.zeros_like(self.imageOriginal)
+        merged_image[:, :line_end[0], :] = self.imageOriginal[:, :line_end[0], :]
+        merged_image[:, line_end[0]:, :] = self.imageRestored[:, line_end[0]:, :]
 
         # 繪製紅色線條
         line_thickness = 2
@@ -521,8 +519,8 @@ class StartPage(QWidget, QtCore.QObject):
         qImg = QImage(merged_image_rgb.data, width, height,
                       width * channels, QImage.Format_RGB888)
 
-        # 將QImage格式的影像顯示在image_e標籤上
-        self.image_e.setPixmap(QPixmap.fromImage(qImg))
+        # 將QImage格式的影像顯示在imageMainPage標籤上
+        self.imageMainPage.setPixmap(QPixmap.fromImage(qImg))
 
     # 接收回傳的資料並更新影像
     @QtCore.pyqtSlot(dict)
