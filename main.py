@@ -29,122 +29,71 @@ class StartPage(QWidget, QtCore.QObject):
 
     def __init__(self):
         super().__init__()
-        #demo
-        self.times = 0
+        self.init_models()
+        self.init_ui()
+        self.setup_buttons()
+        self.setup_selectors()
+        self.setup_tabs()
+        self.setup_layout()
 
-        # model
+    def init_models(self):
+        self.times = 0
         self.yoloModel = YOLO("detection/best.pt")
         self.colorization_model = "neural-colorization/G.pth"
-        
-        # 設置物件
-        # 主圖片
-        self.imageMainPage = QLabel(self)
-        self.imageMainPage.setFixedSize(801, 453)
-        
-        # self.imageOriginal 原圖片
-        # self.imageRestored 被還原的圖片
-        # self.img_path 原圖片的路徑
-        # self.imageRestored_path 被還原的圖片的路徑
-
-        # 當原圖已經被還原，不需要再還原一次
         self.firstTime_WaterNet = True
         self.firstTime_Colorization = True
         self.firstTime_Detection = True
-		
-		# 狀態變數，用於跟蹤Webcam是否開啟
         self.webcam_opened = False
-        
-        # 示範區塊大小
         self.DEMO_SIZE = (801, 453)
         self.MAIN_SIZE = (1900, 1060)
 
-        # 指令與切換按鈕
-        buttonWaterNet = QPushButton('waterNet', self)
-        buttonColorization = QPushButton('colorization', self)
-        buttonOpenImage = QPushButton('open image', self)
-        buttonAnalyze = QPushButton('analyze', self)
-        buttonDetection = QPushButton('detection',self)
-        buttonOpenVideo = QPushButton('open video', self)
-        buttonWebcam = QPushButton('webcam', self)
-
-        self.colorization_selector = QComboBox(self)
-        self.detection_selector = QComboBox(self)
-        self.webcam_selector = QComboBox(self)
-        
-        # 副圖片
+    def init_ui(self):
+        self.imageMainPage = QLabel(self)
+        self.imageMainPage.setFixedSize(801, 453)
         self.imageColorBoard = QLabel(self)
-        self.imageColorBoard.setPixmap(QPixmap('Standard.png').scaled(450,450))
+        self.imageColorBoard.setPixmap(QPixmap('Standard.png').scaled(450, 450))
         self.imageColorBlockAnalysis = QLabel(self)
 
-        # 版面配置
-        layout = QHBoxLayout()
-        layout_left = QVBoxLayout()
-        layout_left.addWidget(self.imageMainPage)
-        layout_right = QHBoxLayout()
+    def setup_buttons(self):
+        self.buttonWaterNet = QPushButton('waterNet', self)
+        self.buttonColorization = QPushButton('colorization', self)
+        self.buttonOpenImage = QPushButton('open image', self)
+        self.buttonAnalyze = QPushButton('analyze', self)
+        self.buttonDetection = QPushButton('detection', self)
+        self.buttonOpenVideo = QPushButton('open video', self)
+        self.buttonWebcam = QPushButton('webcam', self)
+        self.connect_button_signals()
 
-        # ----------- 按鈕配置 -----------
-        # 建立按鈕和下拉選擇框，並使其對齊
-        buttons_and_selectors = [
-            (buttonWaterNet, None),  # 填充空白
-            (buttonColorization, self.colorization_selector),
-            (buttonOpenImage, None),  # 填充空白
-            (buttonAnalyze, None),  # 填充空白
-            (buttonOpenVideo, None),  # 填充空白
-            (buttonDetection, self.detection_selector),
-            (buttonWebcam, self.webcam_selector)   
-        ]
+    def connect_button_signals(self):
+        self.buttonWaterNet.clicked.connect(self.use_waterNet)
+        self.buttonColorization.clicked.connect(self.use_colorization)
+        self.buttonOpenImage.clicked.connect(self.open_image)
+        self.buttonAnalyze.clicked.connect(self.open_Analyze)
+        self.buttonDetection.clicked.connect(self.use_detection)
+        self.buttonOpenVideo.clicked.connect(self.open_video)
+        self.buttonWebcam.clicked.connect(self.use_webcam)
 
-        # 取得按鈕和下拉選擇框對的最大寬度
-        max_width = max(button.sizeHint().width() if button is not None else 0 for button, _ in buttons_and_selectors)
-
-        # 建立佈局以容納每個按鈕和下拉選擇框對，從左到右
-        button_selector_layout = QHBoxLayout()
-        for button, selector in buttons_and_selectors:
-            button_layout = QVBoxLayout()
-            if button is not None:
-                button_layout.addWidget(button)
-            if selector is not None:
-                button_layout.addWidget(selector)
-            button_layout.addStretch()  # 用空白填滿剩餘空間，使它們上下對齊
-            button_layout.setContentsMargins(0, 0, max_width - button_layout.sizeHint().width(), 0)
-            button_selector_layout.addLayout(button_layout)
-
-        layout_left.addLayout(button_selector_layout)
-
-        layout_right.addWidget(self.imageColorBoard)
-        layout_right.addWidget(self.imageColorBlockAnalysis)
-        layout_right.addStretch()
-
-        layout.addLayout(layout_left)
-        layout.addLayout(layout_right)
-        # ----------- 按鈕配置 -----------
-        
-        # 下拉選單
-        self.colorization_selector.addItem("ocean")
-        self.colorization_selector.addItem("people")
-        self.colorization_selector.addItem("colorboard")
-        self.colorization_selector.addItem("original")
-        self.detection_selector.addItem("fish")
-        self.detection_selector.addItem("colorBoard")
-        self.detection_selector.addItem("yolov8n")
-        self.detection_selector.addItem("yolov8x")
-        self.detection_selector.addItem("yolov8x-oiv7")
-        
-        self.webcam_selector.addItem("GRAY")
-        self.webcam_selector.addItem("RGB")
-        
+    def setup_selectors(self):
+        self.colorization_selector = QComboBox(self)
+        self.colorization_selector.addItems(["ocean", "people", "colorboard", "original"])
         self.colorization_selector.activated.connect(self.select_colorization)
-        self.detection_selector.activated.connect(self.select_detection)
-        self.webcam_selector.activated.connect(self.select_webcam_color)
-        self.select_detection()
-        self.select_colorization()
-        self.select_webcam_color()
-        
-        # 頁籤
-        tab_widget = QTabWidget()
-        tab_widget.setFixedSize(1875, 500)
 
-        # 第三頁
+        self.detection_selector = QComboBox(self)
+        self.detection_selector.addItems(["fish", "colorBoard", "yolov8n", "yolov8x", "yolov8x-oiv7"])
+        self.detection_selector.activated.connect(self.select_detection)
+
+        self.webcam_selector = QComboBox(self)
+        self.webcam_selector.addItems(["GRAY", "RGB"])
+        self.webcam_selector.activated.connect(self.select_webcam_color)
+
+    def setup_tabs(self):
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setFixedSize(1875, 500)
+        self.setup_tab3()
+        self.setup_tab4()
+        self.setup_tab5()
+
+    def setup_tab3(self):
         tab3 = QWidget()
         layout_tab3 = QHBoxLayout()
         scroll_area_tab3 = QScrollArea()
@@ -153,9 +102,9 @@ class StartPage(QWidget, QtCore.QObject):
         tab3.setLayout(layout_tab3)
         scroll_area_tab3.setWidget(tab3)
         scroll_area_tab3.setAlignment(Qt.AlignCenter)
-        tab_widget.addTab(scroll_area_tab3, "人工抓取分析結果1.Delta E")
+        self.tab_widget.addTab(scroll_area_tab3, "人工抓取分析結果1.Delta E")
 
-        # 第四頁
+    def setup_tab4(self):
         tab4 = QWidget()
         layout_tab4 = QHBoxLayout()
         scroll_area_tab4 = QScrollArea()
@@ -164,9 +113,9 @@ class StartPage(QWidget, QtCore.QObject):
         tab4.setLayout(layout_tab4)
         scroll_area_tab4.setWidget(tab4)
         scroll_area_tab4.setAlignment(Qt.AlignCenter)
-        tab_widget.addTab(scroll_area_tab4, "人工抓取分析結果2.色塊")
+        self.tab_widget.addTab(scroll_area_tab4, "人工抓取分析結果2.色塊")
 
-        # 第五頁
+    def setup_tab5(self):
         tab5 = QWidget()
         layout_tab5 = QHBoxLayout()
         scroll_area_tab5 = QScrollArea()
@@ -175,24 +124,48 @@ class StartPage(QWidget, QtCore.QObject):
         tab5.setLayout(layout_tab5)
         scroll_area_tab5.setWidget(tab5)
         scroll_area_tab5.setAlignment(Qt.AlignCenter)
-        tab_widget.addTab(scroll_area_tab5, "人工抓取分析結果3.長條圖")
+        self.tab_widget.addTab(scroll_area_tab5, "人工抓取分析結果3.長條圖")
+
+    def setup_layout(self):
+        layout = QHBoxLayout()
+        layout_left = QVBoxLayout()
+        layout_left.addWidget(self.imageMainPage)
+        layout_left.addLayout(self.create_button_selector_layout())
+        layout_right = QVBoxLayout()
+        layout_right.addWidget(self.imageColorBoard)
+        layout_right.addWidget(self.imageColorBlockAnalysis)
+        layout_right.addStretch()
+        layout.addLayout(layout_left)
+        layout.addLayout(layout_right)
 
         main_layout = QVBoxLayout()
         main_layout.addLayout(layout)
-        main_layout.addWidget(tab_widget)
+        main_layout.addWidget(self.tab_widget)
 
         self.setLayout(main_layout)
         self.setWindowTitle("Start Page")
-        self.setFixedSize(self.MAIN_SIZE[0], self.MAIN_SIZE[1])
+        self.setFixedSize(*self.MAIN_SIZE)
 
-        # 點擊事件
-        buttonWaterNet.clicked.connect(self.use_waterNet)
-        buttonColorization.clicked.connect(self.use_colorization)
-        buttonOpenImage.clicked.connect(self.open_image)
-        buttonAnalyze.clicked.connect(self.open_Analyze)
-        buttonDetection.clicked.connect(self.use_detection)
-        buttonOpenVideo.clicked.connect(self.open_video)
-        buttonWebcam.clicked.connect(self.use_webcam)
+    def create_button_selector_layout(self):
+        buttons_and_selectors = [
+            (self.buttonWaterNet, None),
+            (self.buttonColorization, self.colorization_selector),
+            (self.buttonOpenImage, None),
+            (self.buttonAnalyze, None),
+            (self.buttonOpenVideo, None),
+            (self.buttonDetection, self.detection_selector),
+            (self.buttonWebcam, self.webcam_selector),
+        ]
+        button_selector_layout = QHBoxLayout()
+        for button, selector in buttons_and_selectors:
+            button_layout = QVBoxLayout()
+            if button:
+                button_layout.addWidget(button)
+            if selector:
+                button_layout.addWidget(selector)
+            button_layout.addStretch()
+            button_selector_layout.addLayout(button_layout)
+        return button_selector_layout
     
     def select_colorization(self):
         select = self.colorization_selector.currentText()
