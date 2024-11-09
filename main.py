@@ -512,111 +512,152 @@ class StartPage(QWidget, QtCore.QObject):
         self.update_image()
 
 
-class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
-    returnAnalyze = QtCore.pyqtSignal(dict)
+class ImageHandler(QtCore.QObject):
+    image_updated = QtCore.pyqtSignal(QPixmap)
 
-    def __init__(self, start_page):
-        super(Analyze, self).__init__(start_page)
-        self.setupUi(self)
-        self.PB_4points.clicked.connect(self.get_cc_points)
-        self.PB_reset.clicked.connect(self.reset)
-        self.PB_rot.clicked.connect(self.rot_rect)
-        self.PB_ok.clicked.connect(self.get_scale)
-        self.PB_ok_2.clicked.connect(self.return_analyze_and_points)
-        self.start_page = start_page
-        self.start_page.image_uploaded.connect(self.handle_image_uploaded)
-        self.img_path = ''
-        self.cc_points = []
-        self.get_p = False
-        self.scale = 0.5
+    def __init__(self, cc_image):
+        super().__init__()
+        self.cc_image = cc_image
+        self.ori_cc_img = None
+        self.resize_cc_img = None
 
-    @QtCore.pyqtSlot(str)
-    def handle_image_uploaded(self, image_path):
-        self.cc_image.reselect()
-        self.img_path = image_path
-        self.ori_cc_img = cv2.imread(self.img_path)
+    def load_image(self, image_path):
+        self.ori_cc_img = cv2.imread(image_path)
         self.ori_cc_img = cv2.cvtColor(self.ori_cc_img, cv2.COLOR_BGR2RGB)
         self.resize_cc_img = cv2.resize(self.ori_cc_img, (640, 480))
-        # 將 OpenCV 的圖片轉換為 QImage
+        self.update_image()
+
+    def update_image(self):
         height, width, channel = self.resize_cc_img.shape
         bytes_per_line = 3 * width
         qimage = QImage(self.resize_cc_img.data, width, height, bytes_per_line, QImage.Format_RGB888)
-        # 將 QImage 轉換為 QPixmap
         qpixmap = QPixmap.fromImage(qimage)
-        # 在介面上顯示圖片
-        self.cc_image.setPixmap(qpixmap)
-    
-    def get_cc_points(self):
-        self.get_p = True
-        self.cc_points = self.cc_image.return_points(self.ori_cc_img, self.get_p)
-        if self.cc_points == False:
-            QMessageBox.information(self, 'error', 'The number of selected points is insufficient',
-                                    QMessageBox.Ok | QMessageBox.Close,
-                                    QMessageBox.Close)
-            return
-        rect = four_point_transform(self.ori_cc_img.copy(), np.array(self.cc_points))
-        self.rect_img = rect.copy()
-        self.rect_img = cv2.resize(self.rect_img, (self.area_image.width(), self.area_image.height()))
-        self.show_image(self.area_image, self.rect_img, rgb=False)
+        self.image_updated.emit(qpixmap)
 
-    def reset(self):
+    def get_points(self, get_p):
+        return self.cc_image.return_points(self.ori_cc_img, get_p)
+
+    def reset_image(self):
         self.cc_image.reselect()
 
-    def show_image(self, image_label, image, rgb=True):
-        if rgb is True:
+
+class ImageTransformer:
+    @staticmethod
+    def show_image(image_label, image, rgb=True):
+        if rgb:
             rgb_image = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2RGB)
         else:
             rgb_image = image.copy()
         label_image = QImage(rgb_image.data, rgb_image.shape[1], rgb_image.shape[0], QImage.Format_RGB888)
         image_label.setPixmap(QPixmap.fromImage(label_image))
 
-    def rot_rect(self):
-        img = cv2.transpose(self.rect_img)
+    @staticmethod
+    def rotate_image(image):
+        img = cv2.transpose(image)
         img = cv2.flip(img, 0)
-        self.rect_img = img.copy()
-        self.rect_img = cv2.resize(self.rect_img, (self.area_image.width(), self.area_image.height()))
-        self.show_image(self.area_image, self.rect_img, rgb=False)
+        return img
 
-    def get_scale(self):
-        tmp = self.scale_text.text()
-        self.scale = float(tmp)
+
+class AnalyzeDataProcessor:
+    def __init__(self, scale=0.5):
+        self.scale = scale
+
+    def set_scale(self, scale_text):
+        self.scale = float(scale_text)
+
+    def process_analyze_data(self, rect_img):
+        return CC_IQA.cc_task(rect_img, self.scale)
+
+
+class Analyze(QMainWindow, Ui_MainWindow, QtCore.QObject):
+    returnAnalyze = QtCore.pyqtSignal(dict)
+
+    def __init__(self, start_page):
+        super(Analyze, self).__init__(start_page)
+        self.setupUi(self)
+        self.start_page = start_page
+        self.init_components()
+        self.connect_signals()
+
+    def init_components(self):
+        self.image_handler = ImageHandler(self.cc_image)
+        self.data_processor = AnalyzeDataProcessor()
+        self.image_transformer = ImageTransformer()
+        self.cc_points = []
+        self.get_p = False
+        self.rect_img = None
+
+    def connect_signals(self):
+        self.PB_4points.clicked.connect(self.get_cc_points)
+        self.PB_reset.clicked.connect(self.reset)
+        self.PB_rot.clicked.connect(self.rotate_rect_image)
+        self.PB_ok.clicked.connect(self.set_scale)
+        self.PB_ok_2.clicked.connect(self.return_analyze_and_points)
+        self.start_page.image_uploaded.connect(self.handle_image_uploaded)
+        self.image_handler.image_updated.connect(self.cc_image.setPixmap)
+
+    @QtCore.pyqtSlot(str)
+    def handle_image_uploaded(self, image_path):
+        self.image_handler.load_image(image_path)
+        self.img_path = image_path
+
+    def get_cc_points(self):
+        self.get_p = True
+        self.cc_points = self.image_handler.get_points(self.get_p)
+        if not self.cc_points:
+            self.show_error('The number of selected points is insufficient')
+            return
+        self.rect_img = four_point_transform(self.image_handler.ori_cc_img.copy(), np.array(self.cc_points))
+        self.rect_img = cv2.resize(self.rect_img, (self.area_image.width(), self.area_image.height()))
+        self.image_transformer.show_image(self.area_image, self.rect_img, rgb=False)
+
+    def reset(self):
+        self.image_handler.reset_image()
+
+    def rotate_rect_image(self):
+        self.rect_img = self.image_transformer.rotate_image(self.rect_img)
+        self.rect_img = cv2.resize(self.rect_img, (self.area_image.width(), self.area_image.height()))
+        self.image_transformer.show_image(self.area_image, self.rect_img, rgb=False)
+
+    def set_scale(self):
+        self.data_processor.set_scale(self.scale_text.text())
 
     def return_analyze_and_points(self):
-        # 顯示通知框
-        msg = QMessageBox(self)
-        msg.setIcon(QMessageBox.Information)
-        msg.resize(100, 100)
-        msg.setWindowTitle('通知')
-        msg.setText('函數執行中...')
-        msg.setStandardButtons(QMessageBox.NoButton)
-        msg.show()
-        QApplication.processEvents() # 強制更新畫面
-
-        data = CC_IQA.cc_task(self.rect_img, self.scale)
-        self.label_C.setText("mean C: {:.4f}".format(data["mean_C"]))
-        self.label_E.setText("mean E: {:.4f}".format(data["mean_E"]))
-        pts = self.cc_image.return_points(self.ori_cc_img, self.get_p)
-        if pts == False:
-            QMessageBox.information(self, 'error', 'The number of selected points is insufficient',
-                                    QMessageBox.Ok | QMessageBox.Close,
-                                    QMessageBox.Close)
+        self.show_message("通知", "函數執行中...", False)
+        data = self.data_processor.process_analyze_data(self.rect_img)
+        self.label_C.setText(f"mean C: {data['mean_C']:.4f}")
+        self.label_E.setText(f"mean E: {data['mean_E']:.4f}")
+        pts = self.image_handler.get_points(self.get_p)
+        if not pts:
+            self.show_error('The number of selected points is insufficient')
             return
         analyze_data = data
         pts = list(map(tuple, pts))
         analyze_data['points'] = pts
-        print(analyze_data)
+        self.save_points(pts)
+        self.returnAnalyze.emit(analyze_data)
+        self.show_message("通知", "函數完成", True)
+
+    def show_message(self, title, message, is_close):
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.NoButton if not is_close else QMessageBox.Ok)
+        msg.show()
+        QApplication.processEvents()
+        if is_close:
+            msg.accept()
+            self.close()
+
+    def show_error(self, message):
+        QMessageBox.information(self, 'Error', message, QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
+
+    def save_points(self, points):
         parent_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         output_file = os.path.join(parent_path, "points.txt")
         with open(output_file, 'w') as f:
-            f.write(', '.join(str(p) for p in pts))
-        self.returnAnalyze.emit(analyze_data)
-        # 關閉通知框
-        msg.accept()
-        QApplication.processEvents() # 強制更新畫面
-        self.close()
-
-    def on_exit_clicked(self):
-        QApplication.exit()
+            f.write(', '.join(str(p) for p in points))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
